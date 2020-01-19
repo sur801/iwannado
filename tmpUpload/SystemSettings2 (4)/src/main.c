@@ -311,10 +311,12 @@ bool result_time_cb(stt_h stt, int index, stt_result_time_event_e event, const c
 	Evas_Object *label = NULL;
 
 	nf = view_get_naviframe();
-	//layout = view_create_layout(nf, NULL, NULL, NULL, NULL);
 	label = elm_label_add(nf);
+	elm_object_style_set(label, "slide_roll");
 	elm_object_text_set(label, text);
 	elm_label_slide_mode_set(label, ELM_LABEL_SLIDE_MODE_ALWAYS);
+	elm_label_slide_duration_set(label, 10);
+	elm_label_slide_go(label);
 
 	elm_object_content_set(nf, label);
 	evas_object_show(nf);
