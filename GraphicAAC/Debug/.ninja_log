@@ -1,0 +1,17 @@
+# ninja log v5
+4	537	0	src/view.o	610f9efdad06c939
+4	942	0	src/data.o	d97a0c26ce2d7564
+3	561	0	src/main.o	510485185cbd5949
+17	26	0	clean	d59b6dac04fa9b5d
+8	17	0	clean_sa	46ab9549445ac981
+0	8	0	clean_cov	b3de405e02eb7ca8
+3	809	0	src/data.o	d97a0c26ce2d7564
+4	827	0	src/view.o	610f9efdad06c939
+4	853	0	src/main.o	510485185cbd5949
+854	1372	0	guiaac	a9da3b4352a8c0fd
+7	978	0	src/main.o	510485185cbd5949
+979	1715	0	guiaac	a9da3b4352a8c0fd
+6	917	0	src/main.o	510485185cbd5949
+917	1767	0	guiaac	a9da3b4352a8c0fd
+5	662	0	src/main.o	510485185cbd5949
+663	952	0	guiaac	a9da3b4352a8c0fd
