@@ -38,6 +38,7 @@ typedef struct appdata {
 	tts_h tts;
 	int item_count;
 	Evas_Object* label;
+	Elm_Gesture_Layer* g_layer; // for long click event
 
 } appdata_s;
 

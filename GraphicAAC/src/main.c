@@ -29,6 +29,7 @@ appdata_s s_info = {
 		.surface = NULL,
 		.item_count = 6,
 		.label = NULL,
+		.g_layer = NULL,
 };
 
 appdata_s v_info = {
@@ -313,9 +314,7 @@ static void _naviframe_back_cb(void *data EINA_UNUSED, Evas_Object *obj, void *e
    dlog_print(DLOG_INFO, LOG_TAG, "back button setting:on : %d\n",setting_on);
    elm_naviframe_item_pop(obj);
 
-   eext_circle_object_scroller_policy_set(s_info.circle_scroller,
-                                          ELM_SCROLLER_POLICY_ON,
-                                          ELM_SCROLLER_POLICY_AUTO);
+
    eext_rotary_object_event_activated_set(s_info.circle_scroller, EINA_TRUE);
 
    if(setting_on > 1){
@@ -325,7 +324,7 @@ static void _naviframe_back_cb(void *data EINA_UNUSED, Evas_Object *obj, void *e
 	   setting_on --;
 	   dlog_print(DLOG_INFO, LOG_TAG, "OUT OF SETTING\n");
 
-		more_image = elm_image_add(s_info.layout);
+		//more_image = elm_image_add(s_info.layout);
 		char abs_path_to_image[PATH_MAX] = {0,};
 		char *res_dir_path = app_get_resource_path();
 		snprintf(abs_path_to_image,PATH_MAX, "%s%s", res_dir_path, "horizontal_more_ic.png");
@@ -336,7 +335,6 @@ static void _naviframe_back_cb(void *data EINA_UNUSED, Evas_Object *obj, void *e
 		evas_object_size_hint_weight_set(more_image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 		evas_object_size_hint_align_set(more_image, EVAS_HINT_FILL, EVAS_HINT_FILL);
 		evas_object_show(more_image);
-		evas_object_event_callback_add(more_image, EVAS_CALLBACK_MOUSE_DOWN, _opened_cb, NULL);
    }
    // 상부 메뉴가 됐다는 표시로 depth를 0으로 표시
    depth = 0;
@@ -459,7 +457,7 @@ _image_create(Evas_Object *parent, char *image_name)
 
    evas_object_size_hint_weight_set(image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(image, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_event_callback_add (image, EVAS_CALLBACK_MOUSE_DOWN, _view_create, NULL);
+   evas_object_event_callback_add (image, EVAS_CALLBACK_MOUSE_UP, _view_create, NULL);
    evas_object_show(image);
 
    return image;
@@ -478,7 +476,7 @@ _image_create_end(Evas_Object *parent, char *image_name)
    evas_object_size_hint_align_set(image, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
    // 이미지 클릭시 tts 함수 달아줌.
-   evas_object_event_callback_add (image, EVAS_CALLBACK_MOUSE_DOWN, gui_tts, &v_info);
+   evas_object_event_callback_add (image, EVAS_CALLBACK_MOUSE_UP, gui_tts, &v_info);
 
    evas_object_show(image);
 
@@ -610,14 +608,14 @@ _box_create(appdata_s *ad)
 static void
 _circle_scroller_create(appdata_s *ad)
 {
-   ad->surface = eext_circle_surface_conformant_add(ad->nf);
+   //ad->surface = eext_circle_surface_conformant_add(ad->nf);
 
 
    ad->circle_scroller = eext_circle_object_scroller_add(ad->scroller, ad->surface);
 
    eext_circle_object_scroller_policy_set(ad->circle_scroller,
-                                          ELM_SCROLLER_POLICY_ON,
-                                          ELM_SCROLLER_POLICY_AUTO);
+                                          ELM_SCROLLER_POLICY_OFF,
+                                          ELM_SCROLLER_POLICY_OFF);
 
    eext_rotary_object_event_activated_set(ad->circle_scroller, EINA_TRUE);
 }
@@ -711,7 +709,7 @@ _page_indicator_create(appdata_s *ad)
    if (ad->item_count > MAX_INDEX_STYLE_ITEM)
      {
         eext_circle_object_scroller_policy_set(ad->circle_scroller,
-                                               ELM_SCROLLER_POLICY_ON,
+                                               ELM_SCROLLER_POLICY_OFF,
                                                ELM_SCROLLER_POLICY_OFF);
      }
    else
@@ -807,29 +805,23 @@ create_base_gui()
 	evas_object_size_hint_weight_set(s_info.conform, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	elm_win_resize_object_add(s_info.win, s_info.conform);
 
-	s_info.surface = eext_circle_surface_conformant_add(s_info.conform);
 
-	// naviframe 만들
+
+	// naviframe 만들기.
 	s_info.nf = create_naviframe(s_info.conform);
 	v_info.nf = s_info.nf;
 	elm_object_content_set(s_info.conform, s_info.nf);
-
+	s_info.surface = eext_circle_surface_conformant_add(s_info.nf);
+	v_info.surface = s_info.surface;
 	depth = 0;
 
 	//layout 만들기
 	_layout_create(&s_info);
 
-	// layout에 버튼 붙이기.
-//	s_info.button = elm_button_add(s_info.layout);
-//	elm_object_style_set(s_info.button, "bottom");
-//	evas_object_geometry_set(s_info.button, 180, 300, 10, 10);
-//	evas_object_show(s_info.button);
-//	//elm_object_content_set(s_info.layout, s_info.button);
-//
-//    evas_object_smart_callback_add(s_info.button, "clicked", _opened_cb, NULL);
+	// gesture layer만들어서 layout에 올리기. long click 이벤트 위해서.
+	s_info.g_layer = elm_gesture_layer_add(s_info.layout);
 
 
-	// 이부분 좀 고치기 더보기 버튼 메인 화면에만 있도록
 	//더보기 버튼 이미지 삽입
 	more_image = elm_image_add(s_info.layout);
 
@@ -843,8 +835,10 @@ create_base_gui()
 	evas_object_size_hint_weight_set(more_image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(more_image, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-	// 더보기 버튼에 open callback 함수 달아줌
-	evas_object_event_callback_add (more_image, EVAS_CALLBACK_MOUSE_DOWN, _opened_cb, (void*)more_image);
+	// 더보기 버튼에 long tap event로 opened_cb 함수 달아줌.
+	elm_gesture_layer_attach(s_info.g_layer, more_image);
+	elm_gesture_layer_cb_set(s_info.g_layer, ELM_GESTURE_N_LONG_TAPS, ELM_GESTURE_STATE_END, _opened_cb, (void*)more_image);
+	//evas_object_event_callback_add (more_image, EVAS_CALLBACK_MOUSE_DOWN, _opened_cb, (void*)more_image);
 	evas_object_show(more_image);
 
 
