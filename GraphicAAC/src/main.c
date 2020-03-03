@@ -457,7 +457,9 @@ _image_create(Evas_Object *parent, char *image_name)
 
    evas_object_size_hint_weight_set(image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(image, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_event_callback_add (image, EVAS_CALLBACK_MOUSE_UP, _view_create, NULL);
+   evas_object_smart_callback_add (image, "clicked", _view_create, NULL);
+   //evas_object_event_callback_add (image, EVAS_CALLBACK_MOUSE_UP, _view_create, NULL);
+
    evas_object_show(image);
 
    return image;
@@ -476,8 +478,8 @@ _image_create_end(Evas_Object *parent, char *image_name)
    evas_object_size_hint_align_set(image, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
    // 이미지 클릭시 tts 함수 달아줌.
-   evas_object_event_callback_add (image, EVAS_CALLBACK_MOUSE_UP, gui_tts, &v_info);
-
+   evas_object_smart_callback_add (image, "clicked", gui_tts, &v_info);
+   //evas_object_event_callback_add (image, EVAS_CALLBACK_MOUSE_UP, gui_tts, NULL);
    evas_object_show(image);
 
    return image;
