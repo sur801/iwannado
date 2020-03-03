@@ -4,11 +4,11 @@
 <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"></SignatureMethod>
 <Reference URI="author-signature.xml">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>bVlB/VJw89jC9Snf0eO4q/v38fbgCZMY/84V07+OScc=</DigestValue>
+<DigestValue>vb8R7RKqVsJY2Le9gviPxW6quIp00fuqifp+Ka2tPiQ=</DigestValue>
 </Reference>
 <Reference URI="bin%2Fguiaac">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>MX8nsTKShqaWgXOKwpooZZBROaq4e4zM6OnDPmE2AR8=</DigestValue>
+<DigestValue>MLRTJfO5hipJJtAnhvFkVrZbYTrAX4tEm5KLStYoi98=</DigestValue>
 </Reference>
 <Reference URI="res%2Fcategory%2Fadd.jpg">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
@@ -248,19 +248,27 @@
 </Reference>
 <Reference URI="res%2Fhorizontal_more_ic.png">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>jPtcTfKdddnhDfosz9rK5sWpfvm7gl5DdQ+mPhXffvE=</DigestValue>
+<DigestValue>WwXKFNvbFX9BtJWneGp/gmAuVQF1eGzaITXq5jcmkdo=</DigestValue>
 </Reference>
 <Reference URI="res%2Flogo.png">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
 <DigestValue>dy2s69wE4PaAklREclsoa77tuesulQUCJwpimwR4xos=</DigestValue>
 </Reference>
+<Reference URI="shared%2F.DS_Store">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>dnpYzcv28+xZmOv3+lcBurACokbI7kCVSYuhs2xwdvQ=</DigestValue>
+</Reference>
 <Reference URI="shared%2Fres%2Fcircle2.png">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
 <DigestValue>1d0oEZHqPn+QzNzGIHwj9ODby6x9ggFs9uOsav6jPNs=</DigestValue>
 </Reference>
+<Reference URI="shared%2Fres%2Flogo_picture_img.png">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>QnyWRtW0PJYv9W5HQ7MdXySFoR7LxZXv+Bw7HHMS2To=</DigestValue>
+</Reference>
 <Reference URI="tizen-manifest.xml">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>h4wVrA+QhLDZX1NKUXJD08UWv5EcayYTX0lH7h8rodI=</DigestValue>
+<DigestValue>XuvJu4wX5Uh3umxDITLAlVIj3td8fyGzhgTn9/vr6vo=</DigestValue>
 </Reference>
 <Reference URI="#prop">
 <Transforms>
@@ -271,9 +279,9 @@
 </Reference>
 </SignedInfo>
 <SignatureValue>
-O4eXKpblYZ96+kNiyodlDn3APpirjUZ4AgmGrX/QH7r7ZHCNdYQGgm2lHvbEdyeXvbcceADHC+Oc
-ug2a8twnLua4dzlpIyHkj75xZAO0x46MEec6BelU/ayWTfnAtQJ7KCExiag7D0fjUXx1rKDt8t/N
-LJ78wR6mk3PoJt6v/A8=
+AHXa0qMvCRWpNTAZeQAvXwlOGyy0wqE9k3kOXxHy8Wr4wokMZYKuHaA/mMu+WHbxi2JvrWR9fNDA
+5Y0oEvlpkizBTgVy45HWyCYXFQ5dCp2w/HnHB+xsg9X4mhXi2yBxEDGu/1rhH+6AqxnIZ5hBlcqd
+XhRz067s5SsuaSwxnuQ=
 </SignatureValue>
 <KeyInfo>
 <X509Data>

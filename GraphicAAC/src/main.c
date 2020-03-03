@@ -330,7 +330,7 @@ static void _naviframe_back_cb(void *data EINA_UNUSED, Evas_Object *obj, void *e
 		snprintf(abs_path_to_image,PATH_MAX, "%s%s", res_dir_path, "horizontal_more_ic.png");
 
 		evas_object_image_file_set(more_image, abs_path_to_image, NULL);
-		evas_object_geometry_set(more_image, 163, 325, 35, 35);
+		evas_object_geometry_set(more_image, 150, 310, 60, 60);
 		dlog_print(DLOG_INFO, LOG_TAG, "image_path : %s",abs_path_to_image);
 		evas_object_size_hint_weight_set(more_image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 		evas_object_size_hint_align_set(more_image, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -458,7 +458,6 @@ _image_create(Evas_Object *parent, char *image_name)
    evas_object_size_hint_weight_set(image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(image, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_smart_callback_add (image, "clicked", _view_create, NULL);
-   //evas_object_event_callback_add (image, EVAS_CALLBACK_MOUSE_UP, _view_create, NULL);
 
    evas_object_show(image);
 
@@ -479,7 +478,6 @@ _image_create_end(Evas_Object *parent, char *image_name)
 
    // 이미지 클릭시 tts 함수 달아줌.
    evas_object_smart_callback_add (image, "clicked", gui_tts, &v_info);
-   //evas_object_event_callback_add (image, EVAS_CALLBACK_MOUSE_UP, gui_tts, NULL);
    evas_object_show(image);
 
    return image;
@@ -832,7 +830,7 @@ create_base_gui()
 	snprintf(abs_path_to_image,PATH_MAX, "%s%s", res_dir_path, "horizontal_more_ic.png");
 
 	evas_object_image_file_set(more_image, abs_path_to_image, NULL);
-	evas_object_geometry_set(more_image, 163, 325, 35, 35);
+	evas_object_geometry_set(more_image, 150, 310, 60, 60);
 	dlog_print(DLOG_INFO, LOG_TAG, "image_path : %s",abs_path_to_image);
 	evas_object_size_hint_weight_set(more_image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(more_image, EVAS_HINT_FILL, EVAS_HINT_FILL);
