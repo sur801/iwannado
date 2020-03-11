@@ -107,12 +107,20 @@ static void _app_info_display(void) {
 	Evas_Object * layout = elm_layout_add(view_get_naviframe());
 	elm_layout_theme_set(layout, "layout", "application", "default");
 
-	Evas_Object* logo_img = elm_image_add(layout);
 
 	// 세팅창 켜져있음.
 	setting_on = 2;
 
+	/*app info page scroller 생성 */
+
+	Evas_Object* scroller;
+	Evas_Object *circle_scroller;
+	scroller = elm_scroller_add(layout);
+	elm_scroller_policy_set(scroller, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
+
+
 	/*로고 이미지 붙이기*/
+	Evas_Object* logo_img = elm_image_add(layout);
 	char abs_path_to_image[PATH_MAX] = {0,};
 	char *res_dir_path = app_get_resource_path();
 	snprintf(abs_path_to_image,PATH_MAX, "%s%s", res_dir_path, "logo.png");
@@ -126,26 +134,24 @@ static void _app_info_display(void) {
 	evas_object_show(logo_img);
 
 	/*앱 info label붙이기*/
-	Evas_Object * label = elm_label_add(layout);
+	Evas_Object * label = elm_label_add(scroller);
 	elm_object_text_set(label,
-	"<br><br><br><br><br><br><align=center><font_size=25>개발사 : 하고싶다</font> <br> <font_size=25>이메일 : hswom@naver.com </font> <br> <font_size=15>위치 관리 번호를 등록하셨을 경우 </font> <br> <font_size=15>사용자 위치를 www.watchacc.com에서 확인하실 수 있습니다.</font> <br> <font_size = 15>사용법 및 기능에 자세한 내용은 </br> www.watchaac.com에서 확인하실 수 있습니다.</font><br><font_size = 15>본 어플리케이션은 <br>AAC 전문기관 '사람과 소통' 의 도움을 받아 제작되었습니다.</font></align> ");
+	"<br><br><br><br><br><br><br><br><align=center><font_size=25>개발사 : 하고싶다</font> <br> <font_size=25>이메일 : hswom@naver.com </font> <br> <font_size=15>위치 관리 번호를 등록하셨을 경우 사용자 위치를</font> <br> <font_size=15> www.watchacc.com에서 확인하실 수 있습니다.</font> <br> <font_size = 15>사용법 및 기능에 자세한 내용은 </br> www.watchaac.com에서 확인하실 수 있습니다.</font><br><font_size = 15>본 어플리케이션은 AAC 전문기관<br>'사람과 소통' 의 도움을 받아 제작되었습니다.</font><br><br><br></align> ");
 
 	elm_object_style_set(label, "marker");
 	evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_show(label);
-	elm_object_content_set(layout,label);
 
 
+	elm_object_content_set(scroller, label);
 
+	Eext_Circle_Surface *surface = eext_circle_surface_conformant_add(view_get_naviframe());
+	circle_scroller = eext_circle_object_scroller_add(scroller, surface);
+	eext_circle_object_scroller_policy_set(circle_scroller, ELM_SCROLLER_POLICY_OFF, ELM_SCROLLER_POLICY_AUTO);
+	eext_rotary_object_event_activated_set(circle_scroller, EINA_TRUE);
 
-
-//	/*app info page scroller 생성 */
-//	Evas_Object* scroller;
-//	scroller = elm_scroller_add(layout);
-//	elm_scroller_policy_set(scroller, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
-//	evas_object_geometry_set(scroller, 121, 20, 120,120);
-//	//elm_object_content_set(layout, scroller);
-//	evas_object_show(scroller);
+	evas_object_show(scroller);
+	elm_object_part_content_set(layout, "elm.swallow.bg", scroller);
 
 
 	evas_object_show(layout);
