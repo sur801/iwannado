@@ -18,7 +18,7 @@
 #endif
 
 
-#define SETTING_ITEM 1
+#define SETTING_ITEM 2
 
 typedef struct appdata {
 	Evas_Object *win;
@@ -50,14 +50,23 @@ typedef struct {
 } more_item_info;
 
 
+
+
+
 static more_item_info detail_more_item[2] = {
 	{"Watch AAC란?", "", "image/more_option_icon_delete.png"},
 	{"위치추적 설정", "", "image/more_option_icon_delete.png"},
 };
 
+char *phone_its[100];
+int phone_cnt;
+char* phone_check;// 인증번호 발송하기 위해 전화번호를 저장하는 전역 변수
+
+
+
+
 int setting_on;
 
-static void _main_more_item_clicked_cb(void *user_data, Evas_Object *obj, void *event_info);
 
 void sub_view_cb(void *data, Evas_Object *obj, void *event_info);
 static void gui_tts(void *user_data, Evas* e,  Evas_Object *obj, void *event_info);
@@ -65,7 +74,6 @@ void enter_tts(appdata_s *ad);
 void state_changed_cb(tts_h tts, tts_state_e previous, tts_state_e current, void* user_data);
 static void _layout_create(appdata_s *ad);
 static Eina_Bool _naviframe_pop_cb(void *data, Elm_Object_Item *it);
-static void _gl_display(void);
 Elm_Object_Item *view_push_item_to_naviframe(Evas_Object *nf, Evas_Object *item, Elm_Naviframe_Item_Pop_Cb _pop_cb, void *cb_data);
 Evas_Object *view_create_circle_genlist(Evas_Object *parent);
 Evas_Object *view_get_naviframe(void);

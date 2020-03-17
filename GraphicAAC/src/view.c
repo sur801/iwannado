@@ -6,7 +6,6 @@
 #include "data.h"
 #include "main.h"
 #include "view.h"
-#define SETTING_ITEMS 1
 
 /*
  * @brief: Make more option object
@@ -17,34 +16,97 @@
  */
 
 char test2[10] = "hellllo";
+Evas_Object *check; // check box widjet
+Evas_Object * gps_genlist;// for refresh gps setting genlist
+Evas_Object *entry; // number input for certificate phone number;
 
-static void _create_category_list(void *data, Evas_Object *obj, void *event_info)
+// for genlist, and update items. make global
+//Elm_Genlist_Item_Class *item_class;
+//Elm_Object_Item *item;
+
+/*
+ * @brief: Create check box
+ * @param[parent]: Object to which you want to add check
+ * @param[event]: Event's name
+ * @param[cb_func]: Callback function
+ * @param[data]: Data needed in this function
+ */
+Evas_Object *view_create_checkbox(Evas_Object *parent, const char *event, Evas_Smart_Cb cb_func, void *data)
 {
-	int index = (int)data;
 
-		switch (index) {
-		case 0:
-			/*
-			 * Greetings
-			 */
-			break;
-		case 1:
-			/*
-			 * Question & Answer
-			 */
-			//_gl_sub_display(1);
-			break;
-		case 2:
-			/*
-			 * Mart
-			 */
-			//_gl_sub_display(2);
-			break;
-		default:
-			dlog_print(DLOG_ERROR, LOG_TAG, "wrong approach");
-			break;
-		}
+
+	if (parent == NULL) {
+		dlog_print(DLOG_ERROR, LOG_TAG, "parent is NULL.");
+		return NULL;
+	}
+
+	check = elm_check_add(parent);
+
+	elm_object_text_set(check, "Check");
+	elm_object_style_set(check, "small popup");
+
+	evas_object_smart_callback_add(check, event, cb_func, data);
+	evas_object_show(check);
+
+	return check;
 }
+
+/*
+ * @brief: Function will be operated when check object is clicked.
+ * @param[data]: Data needed in this function
+ * @param[obj]: Check
+ * @param[event_info]: Information of event
+ */
+static void _icon_clicked_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	state = elm_check_state_get(obj);
+	dlog_print(DLOG_INFO, LOG_TAG, "GET CHECK : check state [%d]", state);
+
+
+	if (state == EINA_TRUE) {
+		//dlog_print(DLOG_INFO, LOG_TAG, "True : check state [%d]", state);
+		//dlog_print(DLOG_INFO, LOG_TAG, "BEFORE : check state [%d]", gps_its_value[0]);
+		elm_check_state_set(obj, EINA_TRUE);
+		data_set_gps_int_value((int)data, EINA_TRUE);
+	} else {
+		//dlog_print(DLOG_INFO, LOG_TAG, "False : check state [%d]", state);
+		//dlog_print(DLOG_INFO, LOG_TAG, "AFTER : check state [%d]", gps_its_value[0]);
+		elm_check_state_set(obj, EINA_FALSE);
+		data_set_gps_int_value((int)data, EINA_FALSE);
+	}
+
+
+	//elm_genlist_item_item_class_update(item, item_class);
+	elm_genlist_realized_items_update(gps_genlist);
+
+	/*
+	 * @note
+	 * Do something when the icon is clicked.
+	 */
+}
+
+
+/*
+ * @brief: Function will be operated when the item is shown to genlist.
+ * @param[data]: Data passed from 'elm_genlist_item_append' as third parameter
+ * @param[obj]: Genlist
+ * @param[part]: Name string of one of the existing text parts in the EDJ group implementing the item's theme
+ */
+static Evas_Object* _get_gps_check(void *data, Evas_Object *obj, const char *part)
+{
+	Evas_Object *content = NULL;
+
+	if (strcmp(part, "elm.icon")) return NULL;
+
+
+	content = view_create_checkbox(obj, "changed", _icon_clicked_cb, data);
+
+	data_get_gps_int_value((int)data, &state);
+	elm_check_state_set(content, !!state);
+
+	return content;
+}
+
 
 static Elm_Genlist_Item_Class *_set_genlist_item_class(const char *style)
 {
@@ -65,42 +127,36 @@ static Elm_Genlist_Item_Class *_set_genlist_item_class(const char *style)
 	if(!strcmp(style, "setting.title")){
 		item_class->item_style = "title";
 		item_class->func.text_get = data_get_setting_title_text;
-	} else if (!strcmp(style, "setting.1text")) {
+	} else if(!strcmp(style, "gps.title")){
+		item_class->item_style = "title";
+		item_class->func.text_get = data_get_gps_title_text;
+	} else if(!strcmp(style, "phone.title")){
+		item_class->item_style = "title";
+		item_class->func.text_get = data_get_phone_title_text;
+	}
+	else if (!strcmp(style, "setting.1text")) {
 		item_class->item_style = "1text";
 		item_class->func.text_get = data_get_setting_text;
+	} else if (!strcmp(style, "setting.2text")) {
+		item_class->item_style = "2text";
+		item_class->func.text_get = data_get_setting_text;
+	} else if (!strcmp(style, "gps.1text")) {
+		item_class->item_style = "1text";
+		item_class->func.text_get = data_get_gps_text;
+
+	} else if(!strcmp(style, "1text.1icon.1")) {
+		item_class->item_style = "1text.1icon.1";
+		item_class->func.content_get = _get_gps_check;
+		item_class->func.text_get = data_get_gps_text;
+	} else if (!strcmp(style, "phone.1text")) {
+		item_class->item_style = "1text";
+		item_class->func.text_get = data_get_phone_text;
+
 	}
 
 	return item_class;
 }
 
-
-void view_create_more_item(Evas_Object *parent, int index, char *name, char *sub_name, char *image_path)
-{
-	//Evas_Object *image = NULL;
-	/* Create the new item */
-	Eext_Object_Item *item  = eext_more_option_item_append(parent);
-
-	/* Set the text in item text part */
-	if (name != NULL) {
-		eext_more_option_item_part_text_set(item, "selector,main_text", name);
-
-	}
-
-
-	if (sub_name != NULL) {
-		eext_more_option_item_part_text_set(item, "selector,sub_text", sub_name);
-	}
-
-
-	//image = elm_image_add(parent);
-	/* Set the content in item content part */
-	//eext_more_option_item_part_content_set(item, "item,icon", image);
-	//elm_image_file_set(image, image_path, NULL);
-
-
-
-	return;
-}
 
 
 static void _app_info_display(void) {
@@ -156,7 +212,195 @@ static void _app_info_display(void) {
 
 	evas_object_show(layout);
 
-	 view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
+	view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
+
+}
+
+//callback function for click sending certification number
+static void _certifi_clicked(void *data, Evas_Object *obj, void *event_info){
+	//char number[100] = (char*)data;
+	phone_check = elm_object_text_get(entry);
+	dlog_print(DLOG_INFO, LOG_TAG, "sending number : %s\n", phone_check);
+
+}
+//layout for add phone number
+static void _phone_add_cb(void *data, Evas_Object *obj, void *event_info){
+	Evas_Object * layout = elm_layout_add(view_get_naviframe());
+	elm_layout_theme_set(layout, "layout", "application", "default");
+	setting_on = 4;
+
+
+	Evas_Object * label = elm_label_add(layout); // 휴대전화 번호 입력
+	Evas_Object * label2 = elm_label_add(layout); // 개인정보 동의
+	Evas_Object *check = elm_check_add(layout); // 개인정보 동의를 위한 체크 박스
+	entry = elm_entry_add(layout); // 전화번호 입력을 위한 text filed
+	elm_entry_single_line_set(entry, EINA_TRUE);
+	//elm_entry_entry_insert(entry, "전화번호 입력");
+	elm_object_part_text_set(entry, "elm.guide", "INPUT PHONE NUMBER");
+	elm_entry_input_panel_layout_set(entry,ELM_INPUT_PANEL_LAYOUT_NUMBERONLY);
+
+
+	elm_object_style_set(check, "small popup");
+	elm_object_style_set(label, "marker");
+	elm_object_text_set(label,"<align=center><font_size=30><br>휴대전화 번호 입력</font><algin>");
+	//evas_object_color_set(label, 0, 92, 230, 255); 칼라 세팅
+	elm_object_style_set(label2, "marker");
+	elm_object_text_set(label2,"<align=center><font_size=25><br>개인정보 수집 동의</font><algin>");
+
+	evas_object_geometry_set(entry, 50, 140, 300, 30); // 전화번호 입력을 위한 text field 위치 설정
+	evas_object_geometry_set(check, 40, 180, 80, 80); // check box 위치 설정
+	evas_object_geometry_set(label2, 110, 180, 180, 50); // 개인 정보 동의 텍스트  위치 설정
+
+
+	// 인증번호 보내는 버튼.
+	Evas_Object* btn = elm_button_add(layout);
+	evas_object_color_set(btn, 40, 154, 247, 220);
+	evas_object_geometry_set(btn, 90, 260, 180, 50);
+	elm_object_style_set(btn, "nextdepth");
+	elm_object_text_set(btn, "<color=#FFFFFF>인증번호 전송</color>");
+
+	elm_object_content_set(layout, label);
+	evas_object_show(check);
+	evas_object_show(label2);
+	evas_object_show(btn);
+	evas_object_show(entry);
+	evas_object_show(layout);
+
+
+
+	evas_object_smart_callback_add(btn, "clicked", _certifi_clicked, NULL);
+
+	view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
+
+}
+
+
+static void _delete_clicked(void *data, Evas_Object *obj, void *event_info) {
+	int id = (int)data;
+	int i;
+	for(i = id ; i<=phone_cnt ; i++){
+		phone_its[i] =  phone_its[i+1];
+	}
+	phone_its[phone_cnt+1] = NULL;
+	phone_cnt--;
+
+
+	elm_genlist_clear(phone_genlist);
+	view_append_item_to_genlist(phone_genlist, "phone.title", NULL, NULL, NULL);
+	for (i = 0; i < phone_cnt+1 ; i++) {
+		// item이 추가 버튼 아니고, 전화번호들 일때,
+		if(i!=phone_cnt && phone_cnt)
+			view_append_item_to_genlist(phone_genlist, "phone.1text", (void *)i, _phone_delete_cb , (void *)i);
+		else
+			view_append_item_to_genlist(phone_genlist, "phone.1text", (void *)i, _phone_add_cb , (void *)i);
+	}
+
+	view_append_item_to_genlist(phone_genlist, "padding", NULL, NULL, NULL);
+	elm_naviframe_item_pop(view_get_naviframe());
+
+}
+
+// layout for delete phone number
+static void _phone_delete_cb(void *data, Evas_Object *obj, void *event_info) {
+
+	int id = (int)data;
+	Evas_Object * layout = elm_layout_add(view_get_naviframe());
+	elm_layout_theme_set(layout, "layout", "application", "default");
+
+	setting_on = 4;
+
+	Evas_Object* label = elm_label_add(layout);
+	Evas_Object* btn = elm_button_add(layout);
+
+	char phone_number[100] = {0,};
+	snprintf(phone_number, 100, "<align=center><font_size=40><br><br><br> %s </font></align>", phone_its[id]);
+	//dlog_print(DLOG_INFO, LOG_TAG, "phone number : %s\n",phone_number);
+	elm_object_text_set(label,phone_number);
+	elm_object_text_set(btn, "삭제");
+
+	elm_object_style_set(label, "marker");
+	elm_object_style_set(btn, "bottom");
+	//evas_object_geometry_set(label, 10, 150, 300, 100);
+	evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+
+	evas_object_show(label);
+
+	evas_object_geometry_set(btn, 120,295, 110, 75);
+	elm_object_content_set(layout, label);
+
+
+	evas_object_show(btn);
+
+	evas_object_smart_callback_add(btn, "clicked", _delete_clicked, (void*)id);
+
+	evas_object_show(layout);
+	view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
+
+
+}
+
+
+static void _phone_setting(void *data, Evas_Object *obj, void *event_info)
+{
+
+	setting_on = 3;
+
+	phone_genlist = NULL;
+
+	/* make genlist and shape genlist circle */
+	phone_genlist = view_create_circle_genlist(view_get_naviframe());
+	view_push_item_to_naviframe(view_get_naviframe(), phone_genlist,NULL, NULL);
+	//append title to genlist.
+	view_append_item_to_genlist(phone_genlist, "phone.title", NULL, NULL, NULL);
+
+//	int i;
+//	for(i=0;i<2;i++){
+//		dlog_print(DLOG_INFO, LOG_TAG, "phone item : %s\n",phone_its[i]);
+//	}
+
+
+	// append items to genlist .
+	// 추가 버튼 까지 genlist에 추가.
+	int i;
+	for (i = 0; i < phone_cnt+1 ; i++) {
+		if(i!=phone_cnt && phone_cnt)
+			view_append_item_to_genlist(phone_genlist, "phone.1text", (void *)i, _phone_delete_cb , (void *)i);
+		else
+			view_append_item_to_genlist(phone_genlist, "phone.1text", (void *)i, _phone_add_cb , (void *)i);
+	}
+	evas_object_show(phone_genlist);
+	//evas_object_show(layout);
+
+	view_append_item_to_genlist(phone_genlist, "padding", NULL, NULL, NULL);
+
+}
+
+
+static void _gps_setting(void){
+	// 세팅창 켜져있음.
+	setting_on = 2;
+	gps_genlist = NULL;
+
+	/* make genlist and shape genlist circle */
+	gps_genlist = view_create_circle_genlist(view_get_naviframe());
+	view_push_item_to_naviframe(view_get_naviframe(), gps_genlist,NULL, NULL);
+
+	//append title to genlist.
+	view_append_item_to_genlist(gps_genlist, "gps.title", NULL, NULL, NULL);
+
+	// append items to genlist .
+	int i;
+	for (i = 0; i < GPS_ITEM ; i++) {
+		if(i==0)
+			view_append_item_to_genlist(gps_genlist, "1text.1icon.1", (void *)i,NULL, (void *)i);
+		else
+			view_append_item_to_genlist(gps_genlist, "gps.1text", (void *)i,_phone_setting, (void *)i);
+	}
+    evas_object_show(gps_genlist);
+	//evas_object_show(layout);
+
+    view_append_item_to_genlist(gps_genlist, "padding", NULL, NULL, NULL);
+	//view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
 
 }
 
@@ -173,8 +417,10 @@ static void _create_setting_layout(void *data, Evas_Object *obj, void *event_inf
 		break;
 	case 1:
 		/*
-		 * Symbol Recommendation
+		 * 위치 추적 기능, 전화번호 세팅
 		 */
+		_gps_setting();
+
 		break;
 	default:
 		dlog_print(DLOG_ERROR, LOG_TAG, "wrong approach");
@@ -196,7 +442,7 @@ _opened_cb(void *data, Evas_Object *obj, void *event_info)
 	setting_on = 1;
 	dlog_print(DLOG_INFO, LOG_TAG, "Open the More Option\n");
 
-	Evas_Object *setting_genlist = NULL;
+	setting_genlist = NULL;
 
 	/* From here, we make genlist for voice memo list */
 	/* make genlist and shape genlist circle */
@@ -209,7 +455,10 @@ _opened_cb(void *data, Evas_Object *obj, void *event_info)
 	// append items to genlist .
 	int i;
 	for (i = 0; i < SETTING_ITEM; i++) {
-		view_append_item_to_genlist(setting_genlist, "setting.1text", (void *)i, _create_setting_layout, (void *)i);
+		if(i==0)
+			view_append_item_to_genlist(setting_genlist, "setting.1text", (void *)i, _create_setting_layout, (void *)i);
+		else
+			view_append_item_to_genlist(setting_genlist, "setting.2text", (void *)i, _create_setting_layout, (void *)i);
 	}
 	evas_object_show(setting_genlist);
 	/*
@@ -226,35 +475,6 @@ _opened_cb(void *data, Evas_Object *obj, void *event_info)
 
 
 }
-
-Evas_Object *view_set_more_button(Evas_Object *parent, const char *part_name, Evas_Smart_Cb _item_selected, void *user_data)
-{
-	Evas_Object *more_btn = NULL;
-
-	if (parent == NULL) {
-		dlog_print(DLOG_ERROR, LOG_TAG, "parent is NULL.");
-		return NULL;
-	}
-
-	more_btn = eext_more_option_add(parent);
-	eext_more_option_direction_set(more_btn, EEXT_MORE_OPTION_DIRECTION_BOTTOM);
-	if (more_btn == NULL) {
-		dlog_print(DLOG_ERROR, LOG_TAG, "more option is NULL.");
-		return NULL;
-	}
-
-	/* Add smart callback more 버튼 누를 때 실행 */
-	evas_object_smart_callback_add(more_btn,"more,option,opened", _opened_cb, more_btn);
-	/* Add smart callback detail_more의 item들 누를 때 실행 */
-	evas_object_smart_callback_add(more_btn, "item,clicked",NULL, user_data);
-
-
-	elm_object_part_content_set(parent, part_name, more_btn);
-
-
-	return more_btn;
-}
-
 
 
 /*

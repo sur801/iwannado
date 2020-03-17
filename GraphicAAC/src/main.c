@@ -318,7 +318,12 @@ static void _naviframe_back_cb(void *data EINA_UNUSED, Evas_Object *obj, void *e
    eext_rotary_object_event_activated_set(s_info.circle_scroller, EINA_TRUE);
 
    if(setting_on > 1){
+	   // gps setting 창에서 back버튼 눌렀을때, setting 창 아이템들 리프레시
+	   if(setting_on==2)
+		   elm_genlist_realized_items_update(setting_genlist);
 	   setting_on--;
+
+
 	   //더보기 버튼
    } else if(setting_on <= 1 && setting_on >= 0){
 	   setting_on --;
@@ -746,36 +751,6 @@ static Eina_Bool _naviframe_pop_cb(void *data, Elm_Object_Item *it)
 }
 
 
-static void _create_category_list(void *data, Evas_Object *obj, void *event_info)
-{
-	int index = (int)data;
-
-		switch (index) {
-		case 0:
-			/*
-			 * Greetings
-			 */
-			break;
-		case 1:
-			/*
-			 * Question & Answer
-			 */
-			//_gl_sub_display(1);
-			break;
-		case 2:
-			/*
-			 * Mart
-			 */
-			//_gl_sub_display(2);
-			break;
-		default:
-			dlog_print(DLOG_ERROR, LOG_TAG, "wrong approach");
-			break;
-		}
-}
-
-
-
 
 static void
 create_base_gui()
@@ -914,10 +889,23 @@ ui_app_lang_changed(app_event_info_h event_info, void *user_data)
 	return;
 }
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	int ret = 0;
+
+//	phone_its[] = {
+//		"010-7202-7518",
+//		"추가",
+//		NULL
+//	};
+	phone_cnt = 5;
+	phone_its[0] = "010-1111-1111";
+	phone_its[1] = "010-2222-2222";
+	phone_its[2] = "010-3333-3333";
+	phone_its[3] = "010-4444-4444";
+	phone_its[4] = "010-5555-5555";
+	phone_its[5] = "추가";
+	phone_its[6] = NULL;
+
 
 	ui_app_lifecycle_callback_s event_callback = {0,};
 	app_event_handler_h handlers[5] = {NULL, };
