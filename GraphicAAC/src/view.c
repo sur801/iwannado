@@ -2,11 +2,15 @@
 #include <app.h>
 #include <Elementary.h>
 #include <dlog.h>
-
 #include "data.h"
 #include "main.h"
 #include "view.h"
-#define SETTING_ITEMS 1
+#include <sqlite3.h>
+
+#include<string.h>
+#include<stdlib.h>
+#include<time.h>
+
 
 /*
  * @brief: Make more option object
@@ -16,35 +20,106 @@
  * @param[user_data]: Data passed to the '_item_selected' function
  */
 
-char test2[10] = "hellllo";
+Evas_Object *check; // check box widjet
+Evas_Object * gps_genlist;// for refresh gps setting genlist
+Evas_Object *entry; // number input for phone number;
+Evas_Object * entry2; // number input for certification number;
 
-static void _create_category_list(void *data, Evas_Object *obj, void *event_info)
+// for genlist, and update items. make global
+//Elm_Genlist_Item_Class *item_class;
+//Elm_Object_Item *item;
+
+/*
+ * @brief: Create check box
+ * @param[parent]: Object to which you want to add check
+ * @param[event]: Event's name
+ * @param[cb_func]: Callback function
+ * @param[data]: Data needed in this function
+ */
+Evas_Object *view_create_checkbox(Evas_Object *parent, const char *event, Evas_Smart_Cb cb_func, void *data)
 {
-	int index = (int)data;
 
-		switch (index) {
-		case 0:
-			/*
-			 * Greetings
-			 */
-			break;
-		case 1:
-			/*
-			 * Question & Answer
-			 */
-			//_gl_sub_display(1);
-			break;
-		case 2:
-			/*
-			 * Mart
-			 */
-			//_gl_sub_display(2);
-			break;
-		default:
-			dlog_print(DLOG_ERROR, LOG_TAG, "wrong approach");
-			break;
-		}
+
+	if (parent == NULL) {
+		dlog_print(DLOG_ERROR, LOG_TAG, "parent is NULL.");
+		return NULL;
+	}
+
+	check = elm_check_add(parent);
+
+	elm_object_text_set(check, "Check");
+	elm_object_style_set(check, "small popup");
+
+	evas_object_smart_callback_add(check, event, cb_func, data);
+	evas_object_show(check);
+
+	return check;
 }
+
+/*
+ * @brief: Function will be operated when check object is clicked.
+ * @param[data]: Data needed in this function
+ * @param[obj]: Check
+ * @param[event_info]: Information of event
+ */
+static void _icon_clicked_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	state = elm_check_state_get(obj);
+	dlog_print(DLOG_INFO, LOG_TAG, "GET CHECK : check state [%d]", state);
+
+
+	if (state == EINA_TRUE) {
+		// 만약에 db에 gps state값 없으면 1로 초기화, 아니면 1로 업데이트
+		//InsertRecordGps(get_ad(), 1);
+
+		elm_check_state_set(obj, EINA_TRUE);
+
+		// 이 함수에서는 db에 있는 값으로 local gps state 업데이트
+		data_set_gps_int_value((int)data, EINA_TRUE);
+
+
+	} else {
+		// 만약에 db에 gps state값 없으면 0로 초기화, 아니면 0로 업데이트
+		//InsertRecordGps(get_ad(), 0);
+
+		elm_check_state_set(obj, EINA_FALSE);
+
+		// 이 함수에서는 db에 있는 값으로 local gps state 업데이트
+		data_set_gps_int_value((int)data, EINA_FALSE);
+	}
+
+
+	//elm_genlist_item_item_class_update(item, item_class);
+	elm_genlist_realized_items_update(gps_genlist);
+
+	/*
+	 * @note
+	 * Do something when the icon is clicked.
+	 */
+}
+
+
+/*
+ * @brief: Function will be operated when the item is shown to genlist.
+ * @param[data]: Data passed from 'elm_genlist_item_append' as third parameter
+ * @param[obj]: Genlist
+ * @param[part]: Name string of one of the existing text parts in the EDJ group implementing the item's theme
+ */
+static Evas_Object* _get_gps_check(void *data, Evas_Object *obj, const char *part)
+{
+	Evas_Object *content = NULL;
+
+	if (strcmp(part, "elm.icon")) return NULL;
+
+
+	content = view_create_checkbox(obj, "changed", _icon_clicked_cb, data);
+
+	data_get_gps_int_value((int)data, &state);
+	elm_check_state_set(content, !!state);
+
+	return content;
+}
+
 
 static Elm_Genlist_Item_Class *_set_genlist_item_class(const char *style)
 {
@@ -65,54 +140,56 @@ static Elm_Genlist_Item_Class *_set_genlist_item_class(const char *style)
 	if(!strcmp(style, "setting.title")){
 		item_class->item_style = "title";
 		item_class->func.text_get = data_get_setting_title_text;
-	} else if (!strcmp(style, "setting.1text")) {
+	} else if(!strcmp(style, "gps.title")){
+		item_class->item_style = "title";
+		item_class->func.text_get = data_get_gps_title_text;
+	} else if(!strcmp(style, "phone.title")){
+		item_class->item_style = "title";
+		item_class->func.text_get = data_get_phone_title_text;
+	}
+	else if (!strcmp(style, "setting.1text")) {
 		item_class->item_style = "1text";
 		item_class->func.text_get = data_get_setting_text;
+	} else if (!strcmp(style, "setting.2text")) {
+		item_class->item_style = "2text";
+		item_class->func.text_get = data_get_setting_text;
+	} else if (!strcmp(style, "gps.1text")) {
+		item_class->item_style = "1text";
+		item_class->func.text_get = data_get_gps_text;
+
+	} else if(!strcmp(style, "1text.1icon.1")) {
+		item_class->item_style = "1text.1icon.1";
+		item_class->func.content_get = _get_gps_check;
+		item_class->func.text_get = data_get_gps_text;
+	} else if (!strcmp(style, "phone.1text")) {
+		item_class->item_style = "1text";
+		item_class->func.text_get = data_get_phone_text;
+
 	}
 
 	return item_class;
 }
 
 
-void view_create_more_item(Evas_Object *parent, int index, char *name, char *sub_name, char *image_path)
-{
-	//Evas_Object *image = NULL;
-	/* Create the new item */
-	Eext_Object_Item *item  = eext_more_option_item_append(parent);
-
-	/* Set the text in item text part */
-	if (name != NULL) {
-		eext_more_option_item_part_text_set(item, "selector,main_text", name);
-
-	}
-
-
-	if (sub_name != NULL) {
-		eext_more_option_item_part_text_set(item, "selector,sub_text", sub_name);
-	}
-
-
-	//image = elm_image_add(parent);
-	/* Set the content in item content part */
-	//eext_more_option_item_part_content_set(item, "item,icon", image);
-	//elm_image_file_set(image, image_path, NULL);
-
-
-
-	return;
-}
-
 
 static void _app_info_display(void) {
 	Evas_Object * layout = elm_layout_add(view_get_naviframe());
 	elm_layout_theme_set(layout, "layout", "application", "default");
 
-	Evas_Object* logo_img = elm_image_add(layout);
 
 	// 세팅창 켜져있음.
 	setting_on = 2;
 
+	/*app info page scroller 생성 */
+
+	Evas_Object* scroller;
+	Evas_Object *circle_scroller;
+	scroller = elm_scroller_add(layout);
+	elm_scroller_policy_set(scroller, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
+
+
 	/*로고 이미지 붙이기*/
+	Evas_Object* logo_img = elm_image_add(layout);
 	char abs_path_to_image[PATH_MAX] = {0,};
 	char *res_dir_path = app_get_resource_path();
 	snprintf(abs_path_to_image,PATH_MAX, "%s%s", res_dir_path, "logo.png");
@@ -126,31 +203,428 @@ static void _app_info_display(void) {
 	evas_object_show(logo_img);
 
 	/*앱 info label붙이기*/
-	Evas_Object * label = elm_label_add(layout);
+	Evas_Object * label = elm_label_add(scroller);
 	elm_object_text_set(label,
-	"<br><br><br><br><br><br><align=center><font_size=25>개발사 : 하고싶다</font> <br> <font_size=25>이메일 : hswom@naver.com </font> <br> <font_size=15>위치 관리 번호를 등록하셨을 경우 </font> <br> <font_size=15>사용자 위치를 www.watchacc.com에서 확인하실 수 있습니다.</font> <br> <font_size = 15>사용법 및 기능에 자세한 내용은 </br> www.watchaac.com에서 확인하실 수 있습니다.</font><br><font_size = 15>본 어플리케이션은 <br>AAC 전문기관 '사람과 소통' 의 도움을 받아 제작되었습니다.</font></align> ");
+	"<br><br><br><br><br><br><br><br><align=center><font_size=25>개발사 : 하고싶다</font> <br> <font_size=25>이메일 : hswom@naver.com </font> <br> <font_size=15>위치 관리 번호를 등록하셨을 경우 사용자 위치를</font> <br> <font_size=15> www.watchacc.com에서 확인하실 수 있습니다.</font> <br> <font_size = 15>사용법 및 기능에 자세한 내용은 </br> www.watchaac.com에서 확인하실 수 있습니다.</font><br><font_size = 15>본 어플리케이션은 AAC 전문기관<br>'사람과 소통' 의 도움을 받아 제작되었습니다.</font><br><br><br></align> ");
 
 	elm_object_style_set(label, "marker");
 	evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_show(label);
-	elm_object_content_set(layout,label);
 
 
+	elm_object_content_set(scroller, label);
 
+	Eext_Circle_Surface *surface = eext_circle_surface_conformant_add(view_get_naviframe());
+	circle_scroller = eext_circle_object_scroller_add(scroller, surface);
+	eext_circle_object_scroller_policy_set(circle_scroller, ELM_SCROLLER_POLICY_OFF, ELM_SCROLLER_POLICY_AUTO);
+	eext_rotary_object_event_activated_set(circle_scroller, EINA_TRUE);
 
-
-//	/*app info page scroller 생성 */
-//	Evas_Object* scroller;
-//	scroller = elm_scroller_add(layout);
-//	elm_scroller_policy_set(scroller, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
-//	evas_object_geometry_set(scroller, 121, 20, 120,120);
-//	//elm_object_content_set(layout, scroller);
-//	evas_object_show(scroller);
+	evas_object_show(scroller);
+	elm_object_part_content_set(layout, "elm.swallow.bg", scroller);
 
 
 	evas_object_show(layout);
 
-	 view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
+	view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
+
+}
+
+static int db_read_cb(void *counter, int argc, char **argv, char **azColName){
+	// read sql에 문제가 있어서 이 call back 함수 안들ㅇ옴.
+	dlog_print(DLOG_INFO, LOG_TAG, "hello\n");
+	char buf[255];
+	phonedata_s* pd = malloc(sizeof(phonedata_s));
+	strcpy(pd->key, argv[0]);
+	pd->id = atoi(argv[1]);
+	//strcpy(pd->id, atoi(argv[1]));
+	strcpy(pd->phone, argv[2]);
+
+	//strcpy(pd->count, atoi(argv[3]));
+	sprintf(buf, "%s / %s / %s ", argv[0], argv[1], argv[2]);
+	dlog_print(DLOG_INFO, LOG_TAG, "buffer : %s\n", buf);
+
+
+	//이 부분 부터 문제 발생.
+
+	int i;
+	if(app_start){
+		dlog_print(DLOG_INFO, LOG_TAG, "hello\n");
+		for(i=phone_cnt ; i>=phone_cnt; i--){
+				strcpy(phone_its[i+1], phone_its[i]);// 새로운 아이템 넣을 자리 만들기
+			dlog_print(DLOG_INFO, LOG_TAG, "index : %d\n",i );
+		}
+		strcpy(phone_its[phone_cnt], argv[2]);
+	} else {
+		for(i=phone_cnt+1 ; i>=phone_cnt; i--){
+				strcpy(phone_its[i+1], phone_its[i]);// 새로운 아이템 넣을 자리 만들기
+			dlog_print(DLOG_INFO, LOG_TAG, "index : %d\n",i );
+		}
+		strcpy(phone_its[phone_cnt], argv[2]);
+	}
+	phone_cnt = atoi(argv[0]);
+
+	for(i=0 ; i<phone_cnt+1; i ++){
+		dlog_print(DLOG_INFO, LOG_TAG, "phone item : %s\n", phone_its[i]);
+	}
+	//elm_list_item_append(m_ad->list, buf, NULL, NULL, NULL, (void*)rd);
+	//elm_list_go(m_ad->list);
+	return 0;
+}
+
+
+static int read_db(appdata_s *ad){
+	char *sql = "select * from UserData";
+	int counter=0;
+	char *ErrMsg;
+	//elm_genlist_clear(phone_genlist);
+
+	// read를 못함. insert까지는 됐을 텐데
+	int ret = sqlite3_exec(ad->phone_db, sql, db_read_cb, &counter, &ErrMsg);
+	//int ret = sqlite3_exec(ad->phone_db, sql, NULL, 0, &ErrMsg);
+	dlog_print(DLOG_INFO, LOG_TAG, "read error : %d", ret);
+	return ret;
+}
+
+
+// callback function for check whether input number and certification number are same.
+static void _certifi_check(void *data, Evas_Object *obj, void *event_info){
+	int certifi_number = (int)data;
+	char * input = elm_object_text_get(entry2);
+	char * phone = elm_object_text_get(entry);
+
+	int input_num = atoi(input);
+	if(certifi_number == input_num){
+		// 인증번호 맞음.
+		dlog_print(DLOG_INFO, LOG_TAG, "same! : %d %d\n",certifi_number, input_num);
+		int i;
+
+		//strcpy에 문제가 있네.
+		for(i=phone_cnt+1 ; i>=phone_cnt; i--){
+			strcpy(phone_its[i+1], phone_its[i]);// 새로운 아이템 넣을 자리 만들기
+		}
+		strcpy(phone_its[phone_cnt], phone_check);
+
+		//db에 휴대폰 데이터 추가. id, phone, count, gps
+		int id = phone_cnt;// id for phone number. starts to 0
+		phone_cnt++; // increase number of phone number;
+		InsertRecordPhone(get_ad(), id, phone);
+
+		elm_genlist_clear(phone_genlist);
+		//read_db(get_ad());
+		view_append_item_to_genlist(phone_genlist, "phone.title", NULL, NULL, NULL);
+
+		for (i = 0; i < phone_cnt+1 ; i++) {
+			// item이 추가 버튼 아니고, 전화번호들 일때,
+			if(i!=phone_cnt && phone_cnt)
+				view_append_item_to_genlist(phone_genlist, "phone.1text", (void *)i, _phone_delete_cb , (void *)i);
+			else
+				view_append_item_to_genlist(phone_genlist, "phone.1text", (void *)i, _phone_add_cb , (void *)i);
+		}
+
+		view_append_item_to_genlist(phone_genlist, "padding", NULL, NULL, NULL);
+
+
+
+	}
+	else{
+		// 인증번호 틀림.
+		dlog_print(DLOG_INFO, LOG_TAG, "not same! : %d %d\n", certifi_number,input_num);
+	}
+
+// phone item 출력용.
+//	int i;
+//	for(i=0 ; i<phone_cnt+1; i ++){
+//		dlog_print(DLOG_INFO, LOG_TAG, "phone item : %s\n", phone_its[i]);
+//	}
+
+	elm_naviframe_item_pop(view_get_naviframe());
+
+}
+
+//callback function for click sending certification number
+static void _certifi_clicked(void *data, Evas_Object *obj, void *event_info){
+	strcpy(phone_check, elm_object_text_get(entry));
+	// 인증번호 전송할 전화번호
+	dlog_print(DLOG_INFO, LOG_TAG, "sending number : %s\n", phone_check);
+
+	// 인증번호 난수로 생성.
+	srand(time(NULL));
+	int lower_random = rand()%1000; // 0~999 중 난수 생성
+	int upper_random = rand()%9+1; // 1~9중 난수 생성
+
+	int random = upper_random*1000 + lower_random;
+
+
+	dlog_print(DLOG_INFO, LOG_TAG, "random number : %d\n", random );
+
+
+	Evas_Object * layout = elm_layout_add(view_get_naviframe());
+	elm_layout_theme_set(layout, "layout", "application", "default");
+
+
+
+	Evas_Object * box = elm_box_add(layout);
+	elm_box_horizontal_set(box, EINA_FALSE);
+	elm_box_padding_set(box, 0, 5);
+	evas_object_show(box);
+
+	// 인증 번호 입력
+	Evas_Object * label = elm_label_add(box);
+	elm_object_text_set(label,"<align=center><font_size=30><br>인증 번호 입력</font><algin>");
+	evas_object_show(label);
+    elm_box_pack_end(box,label);
+
+    // 인증번호 입력을 위한 text field
+    entry2 = elm_entry_add(box);
+	elm_entry_single_line_set(entry2, EINA_TRUE);
+	elm_object_part_text_set(entry2, "elm.guide", "발송된 인증번호를 입력하세요.");
+	elm_entry_input_panel_layout_set(entry2,ELM_INPUT_PANEL_LAYOUT_NUMBERONLY); // 숫자만 입력.
+	evas_object_size_hint_min_set(entry2, 330, 30);
+	evas_object_size_hint_weight_set(entry2, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_show(entry2);
+	elm_box_pack_end(box,entry2);
+
+
+	// 인증번호 확인 버튼.
+	Evas_Object* btn = elm_button_add(box);
+	evas_object_color_set(btn, 40, 154, 247, 220);
+	elm_object_style_set(btn, "nextdepth");
+	elm_object_text_set(btn, "<color=#FFFFFF>확인</color>");
+	evas_object_smart_callback_add(btn, "clicked", _certifi_check, (void*)random);
+	evas_object_size_hint_min_set(btn, 150, 50);
+	evas_object_size_hint_weight_set(btn, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_show(btn);
+	elm_box_pack_end(box, btn);
+
+	elm_object_content_set(layout, box);
+
+	evas_object_show(layout);
+	view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
+
+
+
+}
+//layout for add phone number
+static void _phone_add_cb(void *data, Evas_Object *obj, void *event_info){
+	Evas_Object * layout = elm_layout_add(view_get_naviframe());
+	elm_layout_theme_set(layout, "layout", "application", "default");
+
+
+	// object들을 한 레이아웃에 묶어줄 box;
+	Evas_Object * box = elm_box_add(layout);
+	elm_box_horizontal_set(box, EINA_FALSE);
+	elm_box_padding_set(box, 0, 5);
+    evas_object_show(box);
+
+    // 휴대전화 번호 입력
+	Evas_Object * label = elm_label_add(box);
+	elm_object_style_set(label, "marker");
+	elm_object_text_set(label,"<align=center><font_size=30><br>휴대전화 번호 입력</font><algin>");
+	//evas_object_color_set(label, 0, 92, 230, 255); 칼라 세팅
+	evas_object_show(label);
+    elm_box_pack_end(box,label);
+
+
+    // check box와 개인정보 동의 글을 가로로 묶기 위한 box
+    Evas_Object * sub_box = elm_box_add(box);
+    elm_box_horizontal_set(sub_box, EINA_TRUE);
+    elm_box_padding_set(sub_box, 5, 0);
+    evas_object_show(sub_box);
+
+    // 개인정보 동의를 위한 체크 박스
+    Evas_Object *check = elm_check_add(sub_box);
+	elm_object_style_set(check, "small popup");
+	evas_object_size_hint_min_set(check, 40, 40);
+	evas_object_show(check);
+	elm_box_pack_end(sub_box, check);//sub box에 check box 집어넣기.
+
+	elm_box_pack_end(box, sub_box); //main box에 sub box 집어넣기
+
+	Evas_Object * label2 = elm_label_add(sub_box); // 개인정보 동의
+	elm_object_style_set(label2, "marker");
+	elm_object_text_set(label2,"<align=center><font_size=25><br>개인정보 수집 동의</font><algin>");
+	evas_object_show(label2);
+	elm_box_pack_end(sub_box, label2); //sub box에 check box 집어넣기.
+
+
+	// 전화번호 입력을 위한 text filed
+	entry = elm_entry_add(box);
+	elm_entry_single_line_set(entry, EINA_TRUE);
+	elm_object_part_text_set(entry, "elm.guide", "보호자 전화번호를 입력하세요.");
+	elm_entry_input_panel_layout_set(entry,ELM_INPUT_PANEL_LAYOUT_NUMBERONLY);
+	evas_object_size_hint_min_set(entry, 330, 30);
+	evas_object_size_hint_weight_set(entry, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_show(entry);
+	elm_box_pack_end(box, entry);
+
+
+	// 인증번호 보내는 버튼.
+	Evas_Object* btn = elm_button_add(box);
+	evas_object_color_set(btn, 40, 154, 247, 220);
+	elm_object_style_set(btn, "nextdepth");
+	elm_object_text_set(btn, "<color=#FFFFFF>인증번호 전송</color>");
+	evas_object_smart_callback_add(btn, "clicked", _certifi_clicked, NULL);
+	evas_object_size_hint_min_set(btn, 200, 50);
+	evas_object_size_hint_weight_set(btn, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_show(btn);
+	elm_box_pack_end(box, btn);
+
+	elm_object_content_set(layout, box);
+
+
+
+	evas_object_show(layout);
+	view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
+
+}
+
+
+static void _delete_clicked(void *data, Evas_Object *obj, void *event_info) {
+	int id = (int)data;
+	/*db에서 삭제하기*/
+
+	char delete_key[10];
+
+	sprintf(delete_key,"%d",id+1);
+
+	dlog_print(DLOG_INFO, LOG_TAG, "delete key : %s\n", delete_key);
+
+	/*db에서도 전화번호 삭제하기*/
+	char sql[256];
+	char *ErrMsg;
+	snprintf(sql, 256, "DELETE FROM UserData WHERE KEY=\'%s\';", delete_key);
+	int ret = sqlite3_exec(get_ad()->phone_db, sql, NULL, 0, &ErrMsg);
+
+
+	int i;
+	for(i = id ; i<=phone_cnt ; i++){
+		strcpy(phone_its[i],phone_its[i+1]);
+	}
+	strcpy(phone_its[phone_cnt+1], "");
+	phone_cnt--;
+
+
+	elm_genlist_clear(phone_genlist);
+	view_append_item_to_genlist(phone_genlist, "phone.title", NULL, NULL, NULL);
+	for (i = 0; i < phone_cnt+1 ; i++) {
+		// item이 추가 버튼 아니고, 전화번호들 일때,
+		if(i!=phone_cnt && phone_cnt)
+			view_append_item_to_genlist(phone_genlist, "phone.1text", (void *)i, _phone_delete_cb , (void *)i);
+		else
+			view_append_item_to_genlist(phone_genlist, "phone.1text", (void *)i, _phone_add_cb , (void *)i);
+	}
+
+	view_append_item_to_genlist(phone_genlist, "padding", NULL, NULL, NULL);
+	elm_naviframe_item_pop(view_get_naviframe());
+
+}
+
+// layout for delete phone number
+static void _phone_delete_cb(void *data, Evas_Object *obj, void *event_info) {
+
+	int id = (int)data;
+	Evas_Object * layout = elm_layout_add(view_get_naviframe());
+	elm_layout_theme_set(layout, "layout", "application", "default");
+
+	//setting_on = 4;
+
+	Evas_Object* label = elm_label_add(layout);
+	Evas_Object* btn = elm_button_add(layout);
+
+	char phone_number[100] = {0,};
+	snprintf(phone_number, 100, "<align=center><font_size=40><br><br><br> %s </font></align>", phone_its[id]);
+	//dlog_print(DLOG_INFO, LOG_TAG, "phone number : %s\n",phone_number);
+	elm_object_text_set(label,phone_number);
+	elm_object_text_set(btn, "삭제");
+
+	elm_object_style_set(label, "marker");
+	elm_object_style_set(btn, "bottom");
+	//evas_object_geometry_set(label, 10, 150, 300, 100);
+	evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+
+	evas_object_show(label);
+
+	evas_object_geometry_set(btn, 120,295, 110, 75);
+	elm_object_content_set(layout, label);
+
+
+	evas_object_show(btn);
+
+	evas_object_smart_callback_add(btn, "clicked", _delete_clicked, (void*)id);
+
+	evas_object_show(layout);
+	view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
+
+
+}
+
+
+static void _phone_setting(void *data, Evas_Object *obj, void *event_info)
+{
+
+	setting_on = 3;
+
+	phone_genlist = NULL;
+
+	if(!app_start){
+		//세팅 창 처음 킬때만 read함.
+		read_db(get_ad());
+		app_start=1;
+	}
+
+	/* make genlist and shape genlist circle */
+	phone_genlist = view_create_circle_genlist(view_get_naviframe());
+	view_push_item_to_naviframe(view_get_naviframe(), phone_genlist,NULL, NULL);
+	//append title to genlist.
+	view_append_item_to_genlist(phone_genlist, "phone.title", NULL, NULL, NULL);
+
+
+	// append items to genlist .
+	// 추가 버튼 까지 genlist에 추가.
+	int i;
+	for (i = 0; i < phone_cnt+1 ; i++) {
+		if(i!=phone_cnt && phone_cnt)
+			view_append_item_to_genlist(phone_genlist, "phone.1text", (void *)i, _phone_delete_cb , (void *)i);
+		else
+			view_append_item_to_genlist(phone_genlist, "phone.1text", (void *)i, _phone_add_cb , (void *)i);
+	}
+	evas_object_show(phone_genlist);
+	//evas_object_show(layout);
+
+	for(i=0 ; i<phone_cnt+1; i ++){
+		dlog_print(DLOG_INFO, LOG_TAG, "phone item : %s\n", phone_its[i]);
+	}
+	view_append_item_to_genlist(phone_genlist, "padding", NULL, NULL, NULL);
+
+}
+
+
+static void _gps_setting(void){
+	// 세팅창 켜져있음.
+
+	setting_on = 2;
+	gps_genlist = NULL;
+
+	/* make genlist and shape genlist circle */
+	gps_genlist = view_create_circle_genlist(view_get_naviframe());
+	view_push_item_to_naviframe(view_get_naviframe(), gps_genlist,NULL, NULL);
+
+	//append title to genlist.
+	view_append_item_to_genlist(gps_genlist, "gps.title", NULL, NULL, NULL);
+
+	// append items to genlist .
+	int i;
+	for (i = 0; i < GPS_ITEM ; i++) {
+		if(i==0)
+			view_append_item_to_genlist(gps_genlist, "1text.1icon.1", (void *)i,NULL, (void *)i);
+		else
+			view_append_item_to_genlist(gps_genlist, "gps.1text", (void *)i,_phone_setting, (void *)i);
+	}
+    evas_object_show(gps_genlist);
+	//evas_object_show(layout);
+
+    view_append_item_to_genlist(gps_genlist, "padding", NULL, NULL, NULL);
+	//view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
 
 }
 
@@ -167,8 +641,10 @@ static void _create_setting_layout(void *data, Evas_Object *obj, void *event_inf
 		break;
 	case 1:
 		/*
-		 * Symbol Recommendation
+		 * 위치 추적 기능, 전화번호 세팅
 		 */
+		_gps_setting();
+
 		break;
 	default:
 		dlog_print(DLOG_ERROR, LOG_TAG, "wrong approach");
@@ -190,7 +666,7 @@ _opened_cb(void *data, Evas_Object *obj, void *event_info)
 	setting_on = 1;
 	dlog_print(DLOG_INFO, LOG_TAG, "Open the More Option\n");
 
-	Evas_Object *setting_genlist = NULL;
+	setting_genlist = NULL;
 
 	/* From here, we make genlist for voice memo list */
 	/* make genlist and shape genlist circle */
@@ -203,7 +679,10 @@ _opened_cb(void *data, Evas_Object *obj, void *event_info)
 	// append items to genlist .
 	int i;
 	for (i = 0; i < SETTING_ITEM; i++) {
-		view_append_item_to_genlist(setting_genlist, "setting.1text", (void *)i, _create_setting_layout, (void *)i);
+		if(i==0)
+			view_append_item_to_genlist(setting_genlist, "setting.1text", (void *)i, _create_setting_layout, (void *)i);
+		else
+			view_append_item_to_genlist(setting_genlist, "setting.2text", (void *)i, _create_setting_layout, (void *)i);
 	}
 	evas_object_show(setting_genlist);
 	/*
@@ -220,35 +699,6 @@ _opened_cb(void *data, Evas_Object *obj, void *event_info)
 
 
 }
-
-Evas_Object *view_set_more_button(Evas_Object *parent, const char *part_name, Evas_Smart_Cb _item_selected, void *user_data)
-{
-	Evas_Object *more_btn = NULL;
-
-	if (parent == NULL) {
-		dlog_print(DLOG_ERROR, LOG_TAG, "parent is NULL.");
-		return NULL;
-	}
-
-	more_btn = eext_more_option_add(parent);
-	eext_more_option_direction_set(more_btn, EEXT_MORE_OPTION_DIRECTION_BOTTOM);
-	if (more_btn == NULL) {
-		dlog_print(DLOG_ERROR, LOG_TAG, "more option is NULL.");
-		return NULL;
-	}
-
-	/* Add smart callback more 버튼 누를 때 실행 */
-	evas_object_smart_callback_add(more_btn,"more,option,opened", _opened_cb, more_btn);
-	/* Add smart callback detail_more의 item들 누를 때 실행 */
-	evas_object_smart_callback_add(more_btn, "item,clicked",NULL, user_data);
-
-
-	elm_object_part_content_set(parent, part_name, more_btn);
-
-
-	return more_btn;
-}
-
 
 
 /*
@@ -282,4 +732,84 @@ Elm_Object_Item *view_append_item_to_genlist(Evas_Object *genlist, const char *s
 	elm_genlist_item_class_free(item_class);
 
 	return item;
+}
+
+/* DB 관련 함수들 */
+int CreatePhoneTable(appdata_s *ad){
+	char *ErrMsg;
+	char  *sql  =  "CREATE  TABLE  IF  NOT  EXISTS  UserData(KEY  INTEGER  PRIMARY  KEY, ID INT NOT NULL, PHONE TEXT NOT NULL);";
+	int ret = sqlite3_exec(ad->phone_db, sql, NULL, 0, &ErrMsg);
+	dlog_print(DLOG_INFO, LOG_TAG, "create ret : %d", ret);
+	return ret;
+}
+
+int CreateGpsTable(appdata_s *ad){
+	char *ErrMsg;
+	char  *sql  =  "CREATE  TABLE  IF  NOT  EXISTS  GpsData(KEY  INTEGER  PRIMARY  KEY, GPS INT NOT NULL);";
+	int ret = sqlite3_exec(ad->gps_db, sql, NULL, 0, &ErrMsg);
+
+	InsertRecordGps(ad, gps_its_value[0]);
+	return ret;
+}
+
+void init_phonedb(appdata_s *ad){
+	int err = sqlite3_shutdown();
+	int err2 = sqlite3_config(SQLITE_CONFIG_URI, 1);
+	int err3 = sqlite3_initialize();
+
+	char abs_path_to_db[PATH_MAX] = {0,};
+	char *data_dir_path = app_get_data_path();
+
+	snprintf(abs_path_to_db, PATH_MAX, "%s%s", data_dir_path, "test.db");
+	dlog_print(DLOG_INFO, LOG_TAG, "db path : %s", abs_path_to_db);
+	int ret = sqlite3_open(abs_path_to_db, &ad->phone_db);
+	dlog_print(DLOG_INFO, LOG_TAG, "open ret : %d", ret);
+
+	CreatePhoneTable(ad);
+}
+
+void init_gpsdb(appdata_s *ad){
+	sqlite3_shutdown();
+	sqlite3_config(SQLITE_CONFIG_URI, 1);
+	sqlite3_initialize();
+	char * resource = app_get_data_path();
+	int siz = strlen(resource) + 10;
+	char * path = malloc(sizeof(char)*siz);
+	strncat(path, resource, siz);
+	strncat(path, "test.db", siz);
+	sqlite3_open(path, &ad->gps_db);
+	CreateGpsTable(ad);
+}
+
+void my_phonetable_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h){
+	evas_object_size_hint_align_set(child, EVAS_HINT_FILL, EVAS_HINT_FILL);
+	evas_object_size_hint_weight_set(child, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	elm_table_pack(table, child, x, y, w, h);
+	evas_object_show(child);
+}
+
+int InsertRecordPhone(appdata_s *ad, int id ,unsigned char *phone){
+	char sql[256];
+	char *ErrMsg;
+
+	snprintf(sql,  256,  "INSERT  INTO  UserData  VALUES(NULL,%d,\'%s\');",  id, phone);
+	int ret = sqlite3_exec(ad->phone_db, sql, NULL, 0, &ErrMsg);
+	dlog_print(DLOG_INFO, LOG_TAG, "insert ret : %d", ret);
+	return ret;
+}
+
+int InsertRecordGps(appdata_s *ad, int gps){
+	char sql[256];
+	char *ErrMsg;
+
+	//INSERT INTO users (NAME, email) VALUES ('tez', 'tez@tez.kr') ON DUPLICATE KEY UPDATE name='tez', email='tezpark@tez.kr';
+
+
+	snprintf(sql,  256,  "INSERT INTO GpsData (KEY, GPS) VALUES(NULL,%d) ON DUPLICATE KEY UPDATE GPS=%d ;",  gps, gps);
+
+	dlog_print(DLOG_INFO, LOG_TAG, "gps : %d",gps);
+	dlog_print(DLOG_INFO, LOG_TAG, "query : %s", sql);
+	int ret = sqlite3_exec(ad->gps_db, sql, NULL, 0, &ErrMsg);
+
+	return ret;
 }

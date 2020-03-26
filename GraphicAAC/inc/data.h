@@ -8,6 +8,7 @@ static const int qna_count = 4;
 static const int mart_count = 4;
 #define BUF_LEN 1024
 
+
 static char *category_its[] = {
 	/*** 1line styles ***/
 	"core",
@@ -98,11 +99,38 @@ static char *pe_its[] = {
 
 static char *setting_its[] = {
 	"정보",
+	"위치 추적 기능",
 	NULL
 };
+
+static char *gps_its[] = {
+	"사용 안함",
+	"보호자 전화번호 설정",
+	NULL
+};
+
+/*
+ * display items's values.
+ * states of check boxes is controlled by these values.
+ */
+static int gps_its_value[] = {
+		0,	/* gps always on */
+		-1,	/* phone number setting */
+
+};
+
+
+
 
 
 void _file_abs_resource_path_get(char *res_file_path, char *abs_path, int buf_size);
 char *data_get_setting_title_text(void *data, Evas_Object *obj, const char *part);
 char *data_get_setting_text(void *data, Evas_Object *obj, const char *part);
+char *data_get_gps_title_text(void *data, Evas_Object *obj, const char *part);
+char *data_get_gps_text(void *data, Evas_Object *obj, const char *part);
+void data_set_gps_int_value(int index, int value);
+void data_get_gps_int_value(int index, int *value);
+char *data_get_phone_text(void *data, Evas_Object *obj, const char *part);
+char *data_get_phone_title_text(void *data, Evas_Object *obj, const char *part);
+
 #endif
