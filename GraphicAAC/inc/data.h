@@ -114,7 +114,7 @@ static char *gps_its[] = {
  * states of check boxes is controlled by these values.
  */
 static int gps_its_value[] = {
-		0,	/* gps always on */
+		1,	/* gps always on */
 		-1,	/* phone number setting */
 
 };
