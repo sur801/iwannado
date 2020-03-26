@@ -20,7 +20,7 @@
 #include "view.h"
 #include "data.h"
 #include "main.h"
-
+#include <sqlite3.h>
 
 int ON_OFF = 0;
 
@@ -134,7 +134,24 @@ void data_get_gps_int_value(int index, int *value)
 {
 	dlog_print(DLOG_INFO, LOG_TAG, "GET GPS : check state [%d]", gps_its_value[index] );
 	*value = gps_its_value[index];
+
 }
+
+//// db에서 gps column값 읽어오는 컬백함수
+//static int db_read_cb(void *counter, int argc, char **argv, char **azColName){
+//
+//
+//	// 이 함수에서 db에서 읽어온 값을 세팅하는데, 이 함수를 들어오지를 않음.
+//	dlog_print(DLOG_INFO, LOG_TAG, "DB READ CALL BACK FUNCTION" );
+//
+//	// db에서 읽어온 gps값이 string이랑 int로 바꿔줌.
+//	int gps_state = atoi(argv[1]);
+//	dlog_print(DLOG_INFO, LOG_TAG, "gps state :  [%d]", gps_state );
+//	// 그리고 그걸 local state 값에 집어넣음.
+//	gps_its_value[0] = gps_state;
+//	return 0;
+//}
+
 
 /*
  * @brief: Set display item's value that can shows state of check box
@@ -144,10 +161,19 @@ void data_get_gps_int_value(int index, int *value)
 void data_set_gps_int_value(int index, int value)
 {
 
+	// 여기서 디비에서 gps 값 읽어와서 set 해야 함.
+	// gps value 가져옴.
+//	char *sql = "SELECT * FROM GpsData";
+//	int counter=0;
+//	char *ErrMsg;
+	//sqlite3_exec(get_ad()->gps_db, sql, db_read_cb, &counter, &ErrMsg);
+
+	//sql lite에 있는 값을 읽어와서 gps_its_value[index] 값을 세팅 해줘야 해!!!!!!!
 	gps_its_value[index] = value;
 	dlog_print(DLOG_INFO, LOG_TAG, "SET GPS : check state [%d]", gps_its_value[index] );
 
 }
+
 
 char *data_get_phone_title_text(void *data, Evas_Object *obj, const char *part)
 {
@@ -160,13 +186,6 @@ char *data_get_phone_title_text(void *data, Evas_Object *obj, const char *part)
 char *data_get_phone_text(void *data, Evas_Object *obj, const char *part)
 {
 	char buf[BUF_LEN];
-
-
-	int i;
-	for(i=0;i<2;i++){
-		dlog_print(DLOG_INFO, LOG_TAG, "phone item : %s\n",phone_its[i]);
-	}
-
 
 	int index = (int)data;
 	if (!strcmp(part, "elm.text")) {

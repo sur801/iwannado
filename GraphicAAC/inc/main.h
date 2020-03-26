@@ -3,6 +3,7 @@
 
 #include <app.h>
 #include<tts.h>
+#include <sqlite3.h>
 #include <Elementary.h>
 #include <system_settings.h>
 #include <efl_extension.h>
@@ -39,8 +40,25 @@ typedef struct appdata {
 	int item_count;
 	Evas_Object* label;
 	Elm_Gesture_Layer* g_layer; // for long click event
+	sqlite3 *phone_db; // PHONE Database handle
+	sqlite3 *gps_db; //GPS Database handle
+	char *current_key;
 
 } appdata_s;
+
+
+typedef struct phonedata {
+	char key[10]; // 식별 키
+	int id; // 이 전화번호의 id number
+	char phone[20]; // 전화번호
+} phonedata_s;
+// phone db에 저장할 record 형태.
+
+typedef struct gpsdata {
+	char key[10]; // 식별 키
+	int gps;// 위치추적 기능 켰는지 안켰는지
+} gpsdata_s;
+// gps db에 저장할 record 형태.
 
 Evas_Object* more_image;
 typedef struct {
@@ -58,15 +76,15 @@ static more_item_info detail_more_item[2] = {
 	{"위치추적 설정", "", "image/more_option_icon_delete.png"},
 };
 
-char *phone_its[100];
+char phone_its[100][20];
 int phone_cnt;
-char* phone_check;// 인증번호 발송하기 위해 전화번호를 저장하는 전역 변수
+char phone_check[20];// 인증번호 발송하기 위해 전화번호를 저장하는 전역 변수
 
 
 
 
 int setting_on;
-
+int app_start;
 
 void sub_view_cb(void *data, Evas_Object *obj, void *event_info);
 static void gui_tts(void *user_data, Evas* e,  Evas_Object *obj, void *event_info);
@@ -78,9 +96,15 @@ Elm_Object_Item *view_push_item_to_naviframe(Evas_Object *nf, Evas_Object *item,
 Evas_Object *view_create_circle_genlist(Evas_Object *parent);
 Evas_Object *view_get_naviframe(void);
 Evas_Object *view_get_layout(void);
+Evas_Object *view_get_win(void);
+appdata_s *get_ad(void);
 Evas_Object *view_create_circle_genlist(Evas_Object *parent);
 static void
 _scroll_cb(void *data, Evas_Object *scroller, void *event);
+
+
+
+
 #endif /* __circle2_H__ */
 
 

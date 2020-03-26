@@ -4,6 +4,7 @@
 #include "data.h"
 #include "view.h"
 #include<tts.h>
+#include<string.h>
 
 
 int depth, tts_num, op;
@@ -30,6 +31,9 @@ appdata_s s_info = {
 		.item_count = 6,
 		.label = NULL,
 		.g_layer = NULL,
+		.gps_db = NULL,
+		.phone_db = NULL,
+		.current_key = NULL,
 };
 
 appdata_s v_info = {
@@ -354,6 +358,14 @@ Evas_Object *view_get_naviframe(void)
 Evas_Object *view_get_layout(void)
 {
 	return v_info.layout;
+}
+
+Evas_Object *view_get_win(void)
+{
+	return s_info.win;
+}
+appdata_s *get_ad(void){
+	return &s_info;
 }
 
 
@@ -752,6 +764,8 @@ static Eina_Bool _naviframe_pop_cb(void *data, Elm_Object_Item *it)
 
 
 
+
+
 static void
 create_base_gui()
 {
@@ -833,12 +847,11 @@ create_base_gui()
 
 	elm_object_content_set(s_info.nf, s_info.layout);
 
-
+	app_start = 0;
+	//init_gpsdb(&s_info);
+	init_phonedb(&s_info);
 
 }
-
-
-
 
 static bool
 app_create(void *data)
@@ -889,22 +902,18 @@ ui_app_lang_changed(app_event_info_h event_info, void *user_data)
 	return;
 }
 
+
+
 int main(int argc, char *argv[]) {
 	int ret = 0;
 
-//	phone_its[] = {
-//		"010-7202-7518",
-//		"추가",
-//		NULL
-//	};
-	phone_cnt = 5;
-	phone_its[0] = "010-1111-1111";
-	phone_its[1] = "010-2222-2222";
-	phone_its[2] = "010-3333-3333";
-	phone_its[3] = "010-4444-4444";
-	phone_its[4] = "010-5555-5555";
-	phone_its[5] = "추가";
-	phone_its[6] = NULL;
+	phone_cnt = 0;
+
+
+	strcpy(phone_its[0],"추가");
+	strcpy(phone_its[1],"");
+
+
 
 
 	ui_app_lifecycle_callback_s event_callback = {0,};
