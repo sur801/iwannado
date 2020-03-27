@@ -853,6 +853,59 @@ create_base_gui()
 
 }
 
+void
+app_request_response_cb(ppm_call_cause_e cause, ppm_request_result_e result, const char *privilege, void *user_data)
+{
+    if (cause == PRIVACY_PRIVILEGE_MANAGER_CALL_CAUSE_ERROR) {
+        /* Log and handle errors */
+
+        return;
+    }
+
+    switch (result) {
+        case PRIVACY_PRIVILEGE_MANAGER_REQUEST_RESULT_ALLOW_FOREVER:
+            /* Update UI and start accessing protected functionality */
+            break;
+        case PRIVACY_PRIVILEGE_MANAGER_REQUEST_RESULT_DENY_FOREVER:
+            /* Show a message and terminate the application */
+            break;
+        case PRIVACY_PRIVILEGE_MANAGER_REQUEST_RESULT_DENY_ONCE:
+            /* Show a message with explanation */
+            break;
+    }
+}
+
+
+//for check Privacy-related Permissions
+void
+app_check_and_request_permission()
+{
+    ppm_check_result_e result;
+    const char *privilege = "http://tizen.org/privilege/location";
+
+    int ret = ppm_check_permission(privilege, &result);
+
+    if (ret == PRIVACY_PRIVILEGE_MANAGER_ERROR_NONE) {
+        switch (result) {
+            case PRIVACY_PRIVILEGE_MANAGER_CHECK_RESULT_ALLOW:
+                /* Update UI and start accessing protected functionality */
+                break;
+            case PRIVACY_PRIVILEGE_MANAGER_CHECK_RESULT_DENY:
+                /* Show a message and terminate the application */
+                break;
+            case PRIVACY_PRIVILEGE_MANAGER_CHECK_RESULT_ASK:
+                ret = ppm_request_permission(privilege, app_request_response_cb, NULL);
+                /* Log and handle errors */
+                break;
+        }
+    }
+    else {
+        /* ret != PRIVACY_PRIVILEGE_MANAGER_ERROR_NONE */
+        /* Handle errors */
+    }
+}
+
+
 static bool
 app_create(void *data)
 {

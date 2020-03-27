@@ -8,6 +8,8 @@
 #include <system_settings.h>
 #include <efl_extension.h>
 #include <dlog.h>
+#include <privilege_information.h>
+#include <privacy_privilege_manager.h>
 
 #ifdef  LOG_TAG
 #undef  LOG_TAG
@@ -101,6 +103,8 @@ appdata_s *get_ad(void);
 Evas_Object *view_create_circle_genlist(Evas_Object *parent);
 static void
 _scroll_cb(void *data, Evas_Object *scroller, void *event);
+void app_request_response_cb(ppm_call_cause_e cause, ppm_request_result_e result, const char *privilege, void *user_data);
+void app_check_and_request_permission();
 
 
 
