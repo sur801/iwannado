@@ -12,10 +12,10 @@ static const int mart_count = 4;
 static char *category_its[] = {
 	/*** 1line styles ***/
 	"core",
-	"buy",
-	"class",
+	"corona",
 	"food",
 	"hospital",
+	"mart",
 	"pe",
 	/* do not delete below */
 	NULL
@@ -38,20 +38,11 @@ static char *core_its[] = {
 	NULL
 };
 
-static char *class_its[] = {
-	"study",
-	"sit",
-	"class",
-	"paint",
-	"write",
-	"pass",
-	"glue",
-	"scissors",
-	"cut",
+static char *corona_its[] = {
 	NULL
 };
 
-static char *buy_its[] = {
+static char *mart_its[] = {
 	"hello",
 	"howmuch",
 	"pay",

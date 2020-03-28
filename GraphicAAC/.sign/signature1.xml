@@ -4,11 +4,11 @@
 <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"></SignatureMethod>
 <Reference URI="author-signature.xml">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>LxrnM/naYp4bVxrrY9hdeWio6KbE3CrSC3JBQwuYT+I=</DigestValue>
+<DigestValue>lKfU1g7Pi4M7zZRnL/zq0VtkvFu+LMzOmVdfZIcgPik=</DigestValue>
 </Reference>
 <Reference URI="bin%2Fguiaac">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>ib9siA82WMnJT824H+QqnZSmS9Tp8jNHrFCvECOSljM=</DigestValue>
+<DigestValue>u5sjIEW2Jq6wVIvoPI/iBSaWDJ5ITRfk7QoHO/huaL8=</DigestValue>
 </Reference>
 <Reference URI="res%2Fcategory%2Fadd.jpg">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
@@ -21,38 +21,6 @@
 <Reference URI="res%2Fcategory%2Fbuy.jpg">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
 <DigestValue>03Ht/8bPZlg/6IkGCzoyBlA5e283GKQshmjCNpePDO0=</DigestValue>
-</Reference>
-<Reference URI="res%2Fcategory%2Fbuy%2Fcard.jpg">
-<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>EUJZk9vZESBONvzRD0k5Jvdl4NIjrwAvAthxFehJ0Io=</DigestValue>
-</Reference>
-<Reference URI="res%2Fcategory%2Fbuy%2Fchopstick.jpg">
-<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>tXXv4CGAay8RTky3zCox0Q+SSE6puzvRuf/uH1scOcQ=</DigestValue>
-</Reference>
-<Reference URI="res%2Fcategory%2Fbuy%2Fhello.jpg">
-<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>oUwRjqeMRD1czeepdXLjdb0qRZyyrwxnuCNDGqMlwrY=</DigestValue>
-</Reference>
-<Reference URI="res%2Fcategory%2Fbuy%2Fhot.jpg">
-<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>fV4Te46qhsvuuF5H0LOmAmTZh4Eo1ytlQp3pkJISXSc=</DigestValue>
-</Reference>
-<Reference URI="res%2Fcategory%2Fbuy%2Fhowmuch.jpg">
-<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>kWMGeVCjiGq0iS7svMjOBxF76t8CoXvDsQh1XVEsmqM=</DigestValue>
-</Reference>
-<Reference URI="res%2Fcategory%2Fbuy%2Fpay.jpg">
-<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>hxgPBdgkjxF3KE5KBYi1nLfO2ezlNdqAUd/620rqYa4=</DigestValue>
-</Reference>
-<Reference URI="res%2Fcategory%2Fbuy%2Frecipt.jpg">
-<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>ZWQZ9iM6WW7P4yVty4wAjMhLsOwV7XdiVRyrq7tXY68=</DigestValue>
-</Reference>
-<Reference URI="res%2Fcategory%2Fbuy%2Fwhere.jpg">
-<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>3zj2SjaszNCpwrURQnABlLkB2aVCOLOEMSbvNzHhnD0=</DigestValue>
 </Reference>
 <Reference URI="res%2Fcategory%2Fclass.jpg">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
@@ -214,6 +182,38 @@
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
 <DigestValue>8ZXBSkRnjUNH/te76gtX4OEX8ViEjbTi5JmJB7J0a/s=</DigestValue>
 </Reference>
+<Reference URI="res%2Fcategory%2Fmart%2Fcard.jpg">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>EUJZk9vZESBONvzRD0k5Jvdl4NIjrwAvAthxFehJ0Io=</DigestValue>
+</Reference>
+<Reference URI="res%2Fcategory%2Fmart%2Fchopstick.jpg">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>tXXv4CGAay8RTky3zCox0Q+SSE6puzvRuf/uH1scOcQ=</DigestValue>
+</Reference>
+<Reference URI="res%2Fcategory%2Fmart%2Fhello.jpg">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>oUwRjqeMRD1czeepdXLjdb0qRZyyrwxnuCNDGqMlwrY=</DigestValue>
+</Reference>
+<Reference URI="res%2Fcategory%2Fmart%2Fhot.jpg">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>fV4Te46qhsvuuF5H0LOmAmTZh4Eo1ytlQp3pkJISXSc=</DigestValue>
+</Reference>
+<Reference URI="res%2Fcategory%2Fmart%2Fhowmuch.jpg">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>kWMGeVCjiGq0iS7svMjOBxF76t8CoXvDsQh1XVEsmqM=</DigestValue>
+</Reference>
+<Reference URI="res%2Fcategory%2Fmart%2Fpay.jpg">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>hxgPBdgkjxF3KE5KBYi1nLfO2ezlNdqAUd/620rqYa4=</DigestValue>
+</Reference>
+<Reference URI="res%2Fcategory%2Fmart%2Frecipt.jpg">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>ZWQZ9iM6WW7P4yVty4wAjMhLsOwV7XdiVRyrq7tXY68=</DigestValue>
+</Reference>
+<Reference URI="res%2Fcategory%2Fmart%2Fwhere.jpg">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>3zj2SjaszNCpwrURQnABlLkB2aVCOLOEMSbvNzHhnD0=</DigestValue>
+</Reference>
 <Reference URI="res%2Fcategory%2Fpe.jpg">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
 <DigestValue>yzXIKqwLLwH8SB5eitTFZOVumIrTRHeEvZijG+ho0n4=</DigestValue>
@@ -279,11 +279,11 @@
 </Reference>
 </SignedInfo>
 <SignatureValue>
-Jw6uikbzXAl6VOgkYyXtpmpjmvxwYez+F44N9iGqnjXvPfPYmqCvcwCsD/40mpIq6ssXl/q1mLmn
-z0ag5wwfdk8J2nMYnRec0yasLPy2srm8O4Nz6QkBkhTrbavlek17gnOL1y+sTYy2cSkWSmSM4lMx
-bt9y49Gu4rO/FCpXHsTylD/LUo/koDnTGyDhsng0XJJUZ8xZ6+1MWsL8JaE0UEM/BrhCbU7gcMwf
-0/KkzEck3oWakwoRDhpA/8u47kXwEz1aT5zE9yMFw62sCR7l0lJeZ8w+HIqpdqFfv6/nWOLbepyV
-vBKANvt5OgSCy4ysZmatX+hLOxxJgbw/HdbEhQ==
+rYJhAoIYSVYIa/gAAvoU3DzUBZyRw/pjWOz/F9k9l43ljTbu/4TV67IU3MoLu8AEtQrG+OyKsJsm
+3xWgqQTFkHxRkbBBgfqzuldPMpO5zt5uKLTuKz7Y4ZewDAVW0+HKuQ4gQdz8LvdWFyhnSnj3GiKu
+pcD7VcvBakt9lGVJKrgpjr5SR206Db7KJg4SioF4DF75bzX8odzfywPdmPIQeFC0KYT+MOJG2ZZH
+EO01UXZz+jCmnwoID20FKHxDagAD5CMJuCNvUj4ckQKTxpyUjp7DOlx+wYb0UheBzbzAKUS5VxsE
+X2JoUhcvZdEImPw59QiWvuJq/rPW6Tj9vTWtcw==
 </SignatureValue>
 <KeyInfo>
 <X509Data>

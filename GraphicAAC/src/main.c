@@ -31,7 +31,6 @@ appdata_s s_info = {
 		.item_count = 6,
 		.label = NULL,
 		.g_layer = NULL,
-		.gps_db = NULL,
 		.phone_db = NULL,
 		.current_key = NULL,
 };
@@ -190,48 +189,10 @@ void state_changed_cb(tts_h tts, tts_state_e previous, tts_state_e current, void
 			}
 		}
 		else if(op == 1) {
-			if(tts_num==0) {
-				text = "안녕하세요";
-			} else if (tts_num==1) {
-				text = "얼마에요";
-			} else if (tts_num==2){
-				text = "계산해주세요";
-			} else if (tts_num==3){
-				text = "어디에있나요";
-			} else if (tts_num==4){
-				text = "카드로결제해주세요";
-			} else if (tts_num==5){
-				text = "영수증주세요";
-			} else if (tts_num==6){
-				text = "데워주세요";
-			} else if (tts_num==7){
-				text = "젓가락주세요";
-			}
+			/*코로나 부분*/
 
 		}
 		else if(op == 2) {
-			if(tts_num==0) {
-				text = "공부해요";
-			} else if (tts_num==1) {
-				text = "앉아요";
-			} else if (tts_num==2){
-				text = "교실";
-			} else if (tts_num==3){
-				text = "색칠해요";
-			} else if (tts_num==4){
-				text = "써요";
-			} else if (tts_num==5){
-				text = "넘겨요";
-			} else if (tts_num==6){
-				text = "풀";
-			} else if (tts_num==7){
-				text = "가위";
-			} else if (tts_num==8){
-				text = "오려요";
-			}
-
-		}
-		else if(op == 3) {
 			if(tts_num==0) {
 				text = "먹어요";
 			} else if (tts_num==1) {
@@ -247,8 +208,11 @@ void state_changed_cb(tts_h tts, tts_state_e previous, tts_state_e current, void
 			} else if (tts_num==6){
 				text = "이것";
 			}
+
 		}
-		else if(op == 4) {
+		else if(op == 3) {
+
+
 			if(tts_num==0) {
 				text = "아파요";
 			} else if (tts_num==1) {
@@ -265,6 +229,26 @@ void state_changed_cb(tts_h tts, tts_state_e previous, tts_state_e current, void
 				text = "화장실";
 			} else if (tts_num==7){
 				text = "나가요";
+			}
+		}
+		else if(op == 4) {
+
+			if(tts_num==0) {
+				text = "안녕하세요";
+			} else if (tts_num==1) {
+				text = "얼마에요";
+			} else if (tts_num==2){
+				text = "계산해주세요";
+			} else if (tts_num==3){
+				text = "어디에있나요";
+			} else if (tts_num==4){
+				text = "카드로결제해주세요";
+			} else if (tts_num==5){
+				text = "영수증주세요";
+			} else if (tts_num==6){
+				text = "데워주세요";
+			} else if (tts_num==7){
+				text = "젓가락주세요";
 			}
 
 		}
@@ -312,7 +296,7 @@ static void gui_tts(void *user_data, Evas* e,  Evas_Object *obj, void *event_inf
 }
 
 
-//naviframe item들 pop될때 실행되는 callback 함수
+//naviframe item들 back 버튼 눌러서 pop될때 실행되는 callback 함수
 static void _naviframe_back_cb(void *data EINA_UNUSED, Evas_Object *obj, void *event_info EINA_UNUSED)
 {
    dlog_print(DLOG_INFO, LOG_TAG, "back button setting:on : %d\n",setting_on);
@@ -323,8 +307,15 @@ static void _naviframe_back_cb(void *data EINA_UNUSED, Evas_Object *obj, void *e
 
    if(setting_on > 1){
 	   // gps setting 창에서 back버튼 눌렀을때, setting 창 아이템들 리프레시
-	   if(setting_on==2)
+	   if(setting_on==2){
+		   dlog_print(DLOG_INFO, LOG_TAG, "update setting_genlist\n");
 		   elm_genlist_realized_items_update(setting_genlist);
+		   eext_rotary_object_event_activated_set(setting_genlist, EINA_TRUE);
+	   } else if(setting_on==4){
+		   eext_rotary_object_event_activated_set(phone_genlist, EINA_TRUE);
+	   } else if(setting_on==3) {
+		   eext_rotary_object_event_activated_set(gps_genlist, EINA_TRUE);
+	   }
 	   setting_on--;
 
 
@@ -486,8 +477,12 @@ _image_create_end(Evas_Object *parent, char *image_name)
 {
    Evas_Object *image = elm_image_add(parent);
 
+
    char abs_path_to_image[PATH_MAX] = {0,};
+   char *res_dir_path = app_get_resource_path();
+   snprintf(abs_path_to_image, PATH_MAX, "%s%s", res_dir_path,image_name);
    _file_abs_resource_path_get(image_name, abs_path_to_image, PATH_MAX);
+   dlog_print(DLOG_INFO, LOG_TAG, "image path : %s", abs_path_to_image);
    elm_image_file_set(image, abs_path_to_image, NULL);
 
    evas_object_size_hint_weight_set(image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -525,19 +520,19 @@ _page_layout_create(Evas_Object *parent, int image_index)
     	  	v_info.item_count = 10;
     	  }
     	  else if(op==1){
-    	  	snprintf(image_name, MAX_NAME_LENGTH, "%s/%s.jpg", category_its[op] ,buy_its[image_index]);
-    	  	v_info.item_count = 8;
+    	  	snprintf(image_name, MAX_NAME_LENGTH, "%s/%s.jpg", category_its[op] ,corona_its[image_index]);
+    	  	v_info.item_count = 10;
     	  }
     	  else if(op==2){
-    	  	snprintf(image_name, MAX_NAME_LENGTH, "%s/%s.jpg", category_its[op] ,class_its[image_index]);
-    	  	v_info.item_count = 9;
+    	  	snprintf(image_name, MAX_NAME_LENGTH, "%s/%s.jpg", category_its[op] ,food_its[image_index]);
+    	  	v_info.item_count = 7;
     	  }
     	  else if(op==3){
-    	    snprintf(image_name, MAX_NAME_LENGTH, "%s/%s.jpg", category_its[op] ,food_its[image_index]);
+    	    snprintf(image_name, MAX_NAME_LENGTH, "%s/%s.jpg", category_its[op] ,hospital_its[image_index]);
     	    v_info.item_count = 7;
     	  }
     	  else if(op==4){
-    	    snprintf(image_name, MAX_NAME_LENGTH, "%s/%s.jpg", category_its[op] ,hospital_its[image_index]);
+    	    snprintf(image_name, MAX_NAME_LENGTH, "%s/%s.jpg", category_its[op] ,mart_its[image_index]);
     	    v_info.item_count = 8;
     	  }
     	  else if(op==5){
@@ -545,15 +540,13 @@ _page_layout_create(Evas_Object *parent, int image_index)
     	    v_info.item_count = 7;
     	  }
 
-
-    	  dlog_print(DLOG_INFO, "hehe%s", image_name );
       }
 
    Evas_Object *image;
 
    if(!(depth))
    	   image = _image_create(page_layout, image_name); // 첫번째 화면 이미지 생성할
-      else
+   else
    	   image = _image_create_end(page_layout, image_name); // 두번째 화면 이미지 생성할때
 
    elm_object_part_content_set(page_layout, "elm.icon", image);
@@ -757,6 +750,7 @@ _layout_create(appdata_s *ad)
 
 static Eina_Bool _naviframe_pop_cb(void *data, Elm_Object_Item *it)
 {
+	dlog_print(DLOG_INFO, LOG_TAG, "hello3\n");
 	ui_app_exit();
 
 	return EINA_FALSE;
@@ -848,8 +842,15 @@ create_base_gui()
 	elm_object_content_set(s_info.nf, s_info.layout);
 
 	app_start = 0;
-	//init_gpsdb(&s_info);
+
 	init_phonedb(&s_info);
+
+	if(!app_start){
+		//세팅 창 처음 킬때만 read함.
+		read_db(get_ad());
+		app_start=1;
+	}
+
 
 }
 

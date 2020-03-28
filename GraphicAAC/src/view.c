@@ -12,6 +12,7 @@
 #include<time.h>
 
 
+
 /*
  * @brief: Make more option object
  * @param[parent]: Object to which you want to set the more option
@@ -21,7 +22,6 @@
  */
 
 Evas_Object *check; // check box widjet
-Evas_Object * gps_genlist;// for refresh gps setting genlist
 Evas_Object *entry; // number input for phone number;
 Evas_Object * entry2; // number input for certification number;
 
@@ -65,26 +65,43 @@ Evas_Object *view_create_checkbox(Evas_Object *parent, const char *event, Evas_S
 static void _icon_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	state = elm_check_state_get(obj);
-	dlog_print(DLOG_INFO, LOG_TAG, "GET CHECK : check state [%d]", state);
 
 
 	if (state == EINA_TRUE) {
-		// 만약에 db에 gps state값 없으면 1로 초기화, 아니면 1로 업데이트
-		//InsertRecordGps(get_ad(), 1);
+
 
 		elm_check_state_set(obj, EINA_TRUE);
 
-		// 이 함수에서는 db에 있는 값으로 local gps state 업데이트
+		// local gps state 업데이트
 		data_set_gps_int_value((int)data, EINA_TRUE);
+
+		char sql[256];
+		char *ErrMsg;
+		char * key = "1";
+		int id=0;
+
+		//snprintf(sql, 256, "UPDATE ReportCard SET NAME=\'%s\', ENGLISH=\'%s\',MATH=\'%s\' WHERE KEY=\'%s\';",name, english, math, ad->current_key);
+		snprintf(sql, 256, "UPDATE GpsData SET ID=%d, GPS=1 WHERE KEY=\'%s\';",id,key );
+		int ret = sqlite3_exec(get_ad()->phone_db, sql, NULL, 0, &ErrMsg);
+		dlog_print(DLOG_INFO, LOG_TAG, "update ret : %d\n",ret);
 
 
 	} else {
 		// 만약에 db에 gps state값 없으면 0로 초기화, 아니면 0로 업데이트
-		//InsertRecordGps(get_ad(), 0);
 
 		elm_check_state_set(obj, EINA_FALSE);
 
-		// 이 함수에서는 db에 있는 값으로 local gps state 업데이트
+		char sql[256];
+		char *ErrMsg;
+		char * key = "1";
+		int id=0;
+
+		//snprintf(sql, 256, "UPDATE ReportCard SET NAME=\'%s\', ENGLISH=\'%s\',MATH=\'%s\' WHERE KEY=\'%s\';",name, english, math, ad->current_key);
+		snprintf(sql, 256, "UPDATE GpsData SET ID=%d, GPS=0 WHERE KEY=\'%s\';",id,key );
+		int ret = sqlite3_exec(get_ad()->phone_db, sql, NULL, 0, &ErrMsg);
+		dlog_print(DLOG_INFO, LOG_TAG, "update ret : %d\n",ret);
+
+		//local gps state 업데이트
 		data_set_gps_int_value((int)data, EINA_FALSE);
 	}
 
@@ -229,9 +246,27 @@ static void _app_info_display(void) {
 
 }
 
+static int db_gps_cb(void *counter, int argc, char **argv, char **azColName){
+	char buf[255];
+	gpsdata_s* pd = malloc(sizeof(gpsdata_s));
+	strcpy(pd->key, argv[0]);
+	pd->id = atoi(argv[1]);
+	pd->gps = atoi(argv[2]);
+
+	sprintf(buf, "%s / %s / %s ", argv[0], argv[1], argv[2]);
+	dlog_print(DLOG_INFO, LOG_TAG, "buffer : %s\n", buf);
+
+	if(atoi(pd->key) == 1){
+		gps_its_value[0] = pd->gps;
+		gps_state=pd->gps;
+		dlog_print(DLOG_INFO, LOG_TAG, "gps update : %d !!!!\n", gps_its_value[0]);
+	}
+	return 0;
+
+}
+
 static int db_read_cb(void *counter, int argc, char **argv, char **azColName){
 	// read sql에 문제가 있어서 이 call back 함수 안들ㅇ옴.
-	dlog_print(DLOG_INFO, LOG_TAG, "hello\n");
 	char buf[255];
 	phonedata_s* pd = malloc(sizeof(phonedata_s));
 	strcpy(pd->key, argv[0]);
@@ -248,7 +283,6 @@ static int db_read_cb(void *counter, int argc, char **argv, char **azColName){
 
 	int i;
 	if(app_start){
-		dlog_print(DLOG_INFO, LOG_TAG, "hello\n");
 		for(i=phone_cnt ; i>=phone_cnt; i--){
 				strcpy(phone_its[i+1], phone_its[i]);// 새로운 아이템 넣을 자리 만들기
 			dlog_print(DLOG_INFO, LOG_TAG, "index : %d\n",i );
@@ -272,16 +306,19 @@ static int db_read_cb(void *counter, int argc, char **argv, char **azColName){
 }
 
 
-static int read_db(appdata_s *ad){
+int read_db(appdata_s *ad){
 	char *sql = "select * from UserData";
+	char *sql2 = "select * from GpsData";
 	int counter=0;
 	char *ErrMsg;
 	//elm_genlist_clear(phone_genlist);
 
 	// read를 못함. insert까지는 됐을 텐데
 	int ret = sqlite3_exec(ad->phone_db, sql, db_read_cb, &counter, &ErrMsg);
+	int ret2 = sqlite3_exec(ad->phone_db, sql2, db_gps_cb, &counter, &ErrMsg);
 	//int ret = sqlite3_exec(ad->phone_db, sql, NULL, 0, &ErrMsg);
 	dlog_print(DLOG_INFO, LOG_TAG, "read error : %d", ret);
+	dlog_print(DLOG_INFO, LOG_TAG, "read error : %d", ret2);
 	return ret;
 }
 
@@ -294,8 +331,8 @@ static void _certifi_check(void *data, Evas_Object *obj, void *event_info){
 
 	int input_num = atoi(input);
 	if(certifi_number == input_num){
-		// 인증번호 맞음.
 		dlog_print(DLOG_INFO, LOG_TAG, "same! : %d %d\n",certifi_number, input_num);
+		// 인증번호 맞음.
 		int i;
 
 		//strcpy에 문제가 있네.
@@ -324,25 +361,20 @@ static void _certifi_check(void *data, Evas_Object *obj, void *event_info){
 		view_append_item_to_genlist(phone_genlist, "padding", NULL, NULL, NULL);
 
 
-
 	}
 	else{
 		// 인증번호 틀림.
 		dlog_print(DLOG_INFO, LOG_TAG, "not same! : %d %d\n", certifi_number,input_num);
 	}
-
-// phone item 출력용.
-//	int i;
-//	for(i=0 ; i<phone_cnt+1; i ++){
-//		dlog_print(DLOG_INFO, LOG_TAG, "phone item : %s\n", phone_its[i]);
-//	}
-
+	setting_on = 4;
 	elm_naviframe_item_pop(view_get_naviframe());
 
 }
 
 //callback function for click sending certification number
 static void _certifi_clicked(void *data, Evas_Object *obj, void *event_info){
+
+	setting_on = 5;
 	strcpy(phone_check, elm_object_text_get(entry));
 	// 인증번호 전송할 전화번호
 	dlog_print(DLOG_INFO, LOG_TAG, "sending number : %s\n", phone_check);
@@ -409,7 +441,7 @@ static void _phone_add_cb(void *data, Evas_Object *obj, void *event_info){
 	Evas_Object * layout = elm_layout_add(view_get_naviframe());
 	elm_layout_theme_set(layout, "layout", "application", "default");
 
-
+	setting_on = 4;
 	// object들을 한 레이아웃에 묶어줄 box;
 	Evas_Object * box = elm_box_add(layout);
 	elm_box_horizontal_set(box, EINA_FALSE);
@@ -516,6 +548,7 @@ static void _delete_clicked(void *data, Evas_Object *obj, void *event_info) {
 
 	view_append_item_to_genlist(phone_genlist, "padding", NULL, NULL, NULL);
 	elm_naviframe_item_pop(view_get_naviframe());
+	setting_on = 3;
 
 }
 
@@ -526,14 +559,13 @@ static void _phone_delete_cb(void *data, Evas_Object *obj, void *event_info) {
 	Evas_Object * layout = elm_layout_add(view_get_naviframe());
 	elm_layout_theme_set(layout, "layout", "application", "default");
 
-	//setting_on = 4;
+	setting_on = 4;
 
 	Evas_Object* label = elm_label_add(layout);
 	Evas_Object* btn = elm_button_add(layout);
 
 	char phone_number[100] = {0,};
 	snprintf(phone_number, 100, "<align=center><font_size=40><br><br><br> %s </font></align>", phone_its[id]);
-	//dlog_print(DLOG_INFO, LOG_TAG, "phone number : %s\n",phone_number);
 	elm_object_text_set(label,phone_number);
 	elm_object_text_set(btn, "삭제");
 
@@ -566,11 +598,11 @@ static void _phone_setting(void *data, Evas_Object *obj, void *event_info)
 
 	phone_genlist = NULL;
 
-	if(!app_start){
-		//세팅 창 처음 킬때만 read함.
-		read_db(get_ad());
-		app_start=1;
-	}
+//	if(!app_start){
+//		//세팅 창 처음 킬때만 read함.
+//		read_db(get_ad());
+//		app_start=1;
+//	}
 
 	/* make genlist and shape genlist circle */
 	phone_genlist = view_create_circle_genlist(view_get_naviframe());
@@ -696,6 +728,7 @@ _opened_cb(void *data, Evas_Object *obj, void *event_info)
 	 */
 
 
+	InsertRecordGps(get_ad(), gps_its_value[0]);
 
 
 }
@@ -739,16 +772,15 @@ int CreatePhoneTable(appdata_s *ad){
 	char *ErrMsg;
 	char  *sql  =  "CREATE  TABLE  IF  NOT  EXISTS  UserData(KEY  INTEGER  PRIMARY  KEY, ID INT NOT NULL, PHONE TEXT NOT NULL);";
 	int ret = sqlite3_exec(ad->phone_db, sql, NULL, 0, &ErrMsg);
-	dlog_print(DLOG_INFO, LOG_TAG, "create ret : %d", ret);
+	dlog_print(DLOG_INFO, LOG_TAG, "phone table create ret : %d", ret);
 	return ret;
 }
 
 int CreateGpsTable(appdata_s *ad){
 	char *ErrMsg;
-	char  *sql  =  "CREATE  TABLE  IF  NOT  EXISTS  GpsData(KEY  INTEGER  PRIMARY  KEY, GPS INT NOT NULL);";
-	int ret = sqlite3_exec(ad->gps_db, sql, NULL, 0, &ErrMsg);
-
-	InsertRecordGps(ad, gps_its_value[0]);
+	char  *sql  =  "CREATE  TABLE  IF  NOT  EXISTS  GpsData(KEY  INTEGER  PRIMARY  KEY, ID INT NOT NULL, GPS INT NOT NULL);";
+	int ret = sqlite3_exec(ad->phone_db, sql, NULL, 0, &ErrMsg);
+	dlog_print(DLOG_INFO, LOG_TAG, "gps table create ret : %d", ret);
 	return ret;
 }
 
@@ -766,20 +798,9 @@ void init_phonedb(appdata_s *ad){
 	dlog_print(DLOG_INFO, LOG_TAG, "open ret : %d", ret);
 
 	CreatePhoneTable(ad);
-}
-
-void init_gpsdb(appdata_s *ad){
-	sqlite3_shutdown();
-	sqlite3_config(SQLITE_CONFIG_URI, 1);
-	sqlite3_initialize();
-	char * resource = app_get_data_path();
-	int siz = strlen(resource) + 10;
-	char * path = malloc(sizeof(char)*siz);
-	strncat(path, resource, siz);
-	strncat(path, "test.db", siz);
-	sqlite3_open(path, &ad->gps_db);
 	CreateGpsTable(ad);
 }
+
 
 void my_phonetable_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h){
 	evas_object_size_hint_align_set(child, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -794,7 +815,7 @@ int InsertRecordPhone(appdata_s *ad, int id ,unsigned char *phone){
 
 	snprintf(sql,  256,  "INSERT  INTO  UserData  VALUES(NULL,%d,\'%s\');",  id, phone);
 	int ret = sqlite3_exec(ad->phone_db, sql, NULL, 0, &ErrMsg);
-	dlog_print(DLOG_INFO, LOG_TAG, "insert ret : %d", ret);
+	dlog_print(DLOG_INFO, LOG_TAG, "phone insert ret : %d", ret);
 	return ret;
 }
 
@@ -803,13 +824,14 @@ int InsertRecordGps(appdata_s *ad, int gps){
 	char *ErrMsg;
 
 	//INSERT INTO users (NAME, email) VALUES ('tez', 'tez@tez.kr') ON DUPLICATE KEY UPDATE name='tez', email='tezpark@tez.kr';
+	int id = 0;
+	char* key = "1";
+
+	//INSERT OR REPLACE INTO MINE (id, name, age, salary)VALUES ("CD3", "HO", "37", 5245);
+	snprintf(sql,  256,  "INSERT OR REPLACE INTO GpsData(KEY, ID, GPS) VALUES(\'%s\',%d,%d);",  key, id, gps);
 
 
-	snprintf(sql,  256,  "INSERT INTO GpsData (KEY, GPS) VALUES(NULL,%d) ON DUPLICATE KEY UPDATE GPS=%d ;",  gps, gps);
-
-	dlog_print(DLOG_INFO, LOG_TAG, "gps : %d",gps);
-	dlog_print(DLOG_INFO, LOG_TAG, "query : %s", sql);
-	int ret = sqlite3_exec(ad->gps_db, sql, NULL, 0, &ErrMsg);
-
+	int ret = sqlite3_exec(ad->phone_db, sql, NULL, 0, &ErrMsg);
+	dlog_print(DLOG_INFO, LOG_TAG, "gps insert ret : %d", ret);
 	return ret;
 }

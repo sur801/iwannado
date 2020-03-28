@@ -51,13 +51,12 @@ char *data_get_setting_text(void *data, Evas_Object *obj, const char *part)
 	char buf[BUF_LEN];
 	int index = (int)data;
 
-	dlog_print(DLOG_INFO, LOG_TAG, "SETTING TEXT CHECK : check state [%d]", gps_its_value[0]);
 
 	if (!strcmp(part, "elm.text")) {
 		snprintf(buf, sizeof(buf), "%s", setting_its[index]);
 		return strdup(buf);
 	} else if (!strcmp(part, "elm.text.1")) {
-		if(gps_its_value[0])
+		if(gps_state)
 			snprintf(buf, sizeof(buf), "%s", "사용 중");
 		else
 			snprintf(buf, sizeof(buf), "%s", "사용 안함");
@@ -94,10 +93,9 @@ char *data_get_gps_text(void *data, Evas_Object *obj, const char *part)
 	char buf[BUF_LEN];
 	int index = (int)data;
 
-	dlog_print(DLOG_INFO, LOG_TAG, "GPS TEXT CHECK : check state [%d]", gps_its_value[0]);
-	if(gps_its_value[0]==1&&index == 0)
+	if(gps_state==1&&index == 0)
 		gps_its[index] = "사용 중";
-	else if(gps_its_value[0]==0&&index == 0)
+	else if(gps_state==0&&index == 0)
 		gps_its[index] = "사용 안함";
 	if (!strcmp(part, "elm.text")) {
 		snprintf(buf, sizeof(buf), "%s", gps_its[index]);
@@ -132,8 +130,7 @@ char *data_get_gps_title_text(void *data, Evas_Object *obj, const char *part)
  */
 void data_get_gps_int_value(int index, int *value)
 {
-	dlog_print(DLOG_INFO, LOG_TAG, "GET GPS : check state [%d]", gps_its_value[index] );
-	*value = gps_its_value[index];
+	*value = gps_state;
 
 }
 
@@ -169,8 +166,8 @@ void data_set_gps_int_value(int index, int value)
 	//sqlite3_exec(get_ad()->gps_db, sql, db_read_cb, &counter, &ErrMsg);
 
 	//sql lite에 있는 값을 읽어와서 gps_its_value[index] 값을 세팅 해줘야 해!!!!!!!
-	gps_its_value[index] = value;
-	dlog_print(DLOG_INFO, LOG_TAG, "SET GPS : check state [%d]", gps_its_value[index] );
+	gps_state = value;
+	dlog_print(DLOG_INFO, LOG_TAG, "SET GPS : check state [%d]", gps_state );
 
 }
 

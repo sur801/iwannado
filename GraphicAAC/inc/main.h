@@ -41,7 +41,6 @@ typedef struct appdata {
 	Evas_Object* label;
 	Elm_Gesture_Layer* g_layer; // for long click event
 	sqlite3 *phone_db; // PHONE Database handle
-	sqlite3 *gps_db; //GPS Database handle
 	char *current_key;
 
 } appdata_s;
@@ -56,6 +55,7 @@ typedef struct phonedata {
 
 typedef struct gpsdata {
 	char key[10]; // 식별 키
+	int id; // id number
 	int gps;// 위치추적 기능 켰는지 안켰는지
 } gpsdata_s;
 // gps db에 저장할 record 형태.
