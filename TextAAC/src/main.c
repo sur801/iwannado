@@ -30,7 +30,7 @@
 #define CATEGORY_ITEMS 6
 #define CORE_ITEMS 10
 #define MART_ITEMS 8
-#define CLASS_ITEMS 9
+#define CORONA_ITEMS 10
 #define FOOD_ITEMS 7
 #define HOSPITAL_ITEMS 8
 #define PE_ITEMS 7
@@ -50,6 +50,7 @@ static void _create_category_list(void *data, Evas_Object *obj, void *event_info
 
 static void _create_core_list(void *data, Evas_Object *obj, void *event_info);
 static void _create_class_list(void *data, Evas_Object *obj, void *event_info);
+static void _create_corona_list(void *data, Evas_Object *obj, void *event_info);
 static void _create_mart_list(void *data, Evas_Object *obj, void *event_info);
 static void _create_food_list(void *data, Evas_Object *obj, void *event_info);
 static void _create_hospital_list(void *data, Evas_Object *obj, void *event_info);
@@ -69,11 +70,20 @@ static void _app_info_display(void) {
 	Evas_Object * layout = elm_layout_add(view_get_naviframe());
 	elm_layout_theme_set(layout, "layout", "application", "default");
 
-	Evas_Object* logo_img = elm_image_add(layout);
-
 	// 세팅창 켜져있음.
 	setting_on = 2;
+
+
+	/*app info page scroller 생성 */
+
+	Evas_Object* scroller;
+	Evas_Object *circle_scroller;
+	scroller = elm_scroller_add(layout);
+	elm_scroller_policy_set(scroller, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
+
+
 	/*로고 이미지 붙이기*/
+	Evas_Object* logo_img = elm_image_add(layout);
 	char abs_path_to_image[PATH_MAX] = {0,};
 	char *res_dir_path = app_get_resource_path();
 	snprintf(abs_path_to_image,PATH_MAX, "%s%s", res_dir_path, "logo.png");
@@ -87,31 +97,28 @@ static void _app_info_display(void) {
 	evas_object_show(logo_img);
 
 	/*앱 info label붙이기*/
-	Evas_Object * label = elm_label_add(layout);
+	Evas_Object * label = elm_label_add(scroller);
 	elm_object_text_set(label,
-	"<br><br><br><br><br><br><align=center><font_size=25>개발사 : 하고싶다</font> <br> <font_size=25>이메일 : hswom@naver.com </font> <br> <font_size=15>위치 관리 번호를 등록하셨을 경우 </font> <br> <font_size=15>사용자 위치를 www.watchacc.com에서 확인하실 수 있습니다.</font> <br> <font_size = 15>사용법 및 기능에 자세한 내용은 </br> www.watchaac.com에서 확인하실 수 있습니다.</font><br><font_size = 15>본 어플리케이션은 <br>AAC 전문기관 '사람과 소통' 의 도움을 받아 제작되었습니다.</font></align> ");
+	"<br><br><br><br><br><br><br><br><align=center><font_size=25>개발사 : 하고싶다</font> <br> <font_size=25>이메일 : hswom@naver.com </font> <br> <font_size=15>위치 관리 번호를 등록하셨을 경우 사용자 위치를</font> <br> <font_size=15> www.watchacc.com에서 확인하실 수 있습니다.</font> <br> <font_size = 15>사용법 및 기능에 자세한 내용은 </br> www.watchaac.com에서 확인하실 수 있습니다.</font><br><font_size = 15>본 어플리케이션은 AAC 전문기관<br>'사람과 소통' 의 도움을 받아 제작되었습니다.</font><br><br><br></align> ");
 
 	elm_object_style_set(label, "marker");
 	evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_show(label);
-	elm_object_content_set(layout,label);
 
 
+	elm_object_content_set(scroller, label);
 
+	Eext_Circle_Surface *surface = eext_circle_surface_conformant_add(view_get_naviframe());
+	circle_scroller = eext_circle_object_scroller_add(scroller, surface);
+	eext_circle_object_scroller_policy_set(circle_scroller, ELM_SCROLLER_POLICY_OFF, ELM_SCROLLER_POLICY_AUTO);
+	eext_rotary_object_event_activated_set(circle_scroller, EINA_TRUE);
 
-
-//	/*app info page scroller 생성 */
-//	Evas_Object* scroller;
-//	scroller = elm_scroller_add(layout);
-//	elm_scroller_policy_set(scroller, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
-//	evas_object_geometry_set(scroller, 121, 20, 120,120);
-//	//elm_object_content_set(layout, scroller);
-//	evas_object_show(scroller);
-
+	evas_object_show(scroller);
+	elm_object_part_content_set(layout, "elm.swallow.bg", scroller);
 
 	evas_object_show(layout);
 
-	 view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
+	view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
 
 }
 
@@ -141,6 +148,68 @@ static void _create_setting_layout(void *data, Evas_Object *obj, void *event_inf
 	}
 }
 
+/*
+ * for long click, make longclick timer
+ */
+
+// ---- long click implementation
+
+static Eina_Bool _long_press_cb(void *data)
+{
+    Evas_Object *obj = data;
+	if (data == NULL) return ECORE_CALLBACK_CANCEL;
+	evas_object_smart_callback_call(obj, "longclick", NULL);
+
+	return ECORE_CALLBACK_CANCEL;
+}
+static void _mouse_down(void *data, Evas *e, Evas_Object *obj, void *event_info)
+{
+	Ecore_Timer *timer = evas_object_data_get(obj, _klongtimer);
+
+	if (timer != NULL) {
+			ecore_timer_del(timer);
+			evas_object_data_del(obj, _klongtimer);
+	}
+	if (timer == NULL) {
+		timer = ecore_timer_add(_long_click_time, _long_press_cb, obj);
+		evas_object_data_set(obj, _klongtimer, timer);
+	}
+}
+static void _mouse_up(void *data, Evas *e, Evas_Object *obj, void *event_info)
+{
+	Ecore_Timer *timer = evas_object_data_get(obj, _klongtimer);
+		if (timer != NULL) {
+			ecore_timer_del(timer);
+			evas_object_data_del(obj, _klongtimer);
+		}
+
+}
+static void _mouse_move(void *data, Evas *e, Evas_Object *obj, void *event_info)
+{
+	Ecore_Timer *timer = evas_object_data_get(obj, _klongtimer);
+	Evas_Event_Mouse_Move *ev = event_info;
+	if ((ev->event_flags & EVAS_EVENT_FLAG_ON_HOLD) && timer) {
+		ecore_timer_del(timer);
+		evas_object_data_del(obj, _klongtimer);
+	}
+}
+void pius_object_longclick_time_set(double time)
+{
+	_long_click_time = time;
+}
+double pius_object_longclick_time_get()
+{
+	return _long_click_time;
+}
+void pius_object_longclick_add(Evas_Object *obj, Evas_Smart_Cb func, const void *data)
+{
+	evas_object_event_callback_add(obj, EVAS_CALLBACK_MOUSE_DOWN,_mouse_down, NULL);
+	evas_object_event_callback_add(obj, EVAS_CALLBACK_MOUSE_UP,_mouse_up, NULL);
+	evas_object_event_callback_add(obj, EVAS_CALLBACK_MOUSE_MOVE, _mouse_move, NULL);
+	evas_object_smart_callback_add(obj, "longclick", func, data);
+}
+
+
 
 // Callback function for the "more,option,opened" signal
 // This callback is called when the more_option is seen
@@ -148,13 +217,9 @@ void
 _opened_cb(void *data, Evas_Object *obj, void *event_info)
 {
 
-	// 더보기 버튼 이미지 주소받아와서 call back함수 삭제해주기. 설정창 한번 키면 또 눌러도 켜지지 않도록.
-	//evas_object_event_callback_del(more_btn, EVAS_CALLBACK_MOUSE_DOWN, _opened_cb);
-	//evas_object_event_callback_del_full(more_btn, EVAS_CALLBACK_MOUSE_DOWN, _opened_cb, NULL);
-	//evas_object_freeze_events_set(more_btn, EINA_TRUE);
+	// 더보기 버튼 이미지 없애기.
 	evas_object_image_file_set(more_image, NULL, NULL);
-	evas_object_geometry_set(more_image, 0, 0, 10, 10);
-	//evas_object_geometry_set(more_image, 0, 0, 35, 35);
+	evas_object_geometry_set(more_image, 350, 350, 1, 1);
 
 	// setting창 들어간 것 표시
 		setting_on = 1;
@@ -350,7 +415,9 @@ static void _gl_display(void)
 
 	view_push_item_to_naviframe(nf, category_genlist, _naviframe_pop_cb, NULL);
 
-//더보기 버튼 이미지 삽입
+
+
+	//더보기 버튼 이미지 삽입
 	more_image = elm_image_add(category_genlist);
 
 	char abs_path_to_image[PATH_MAX] = {0,};
@@ -358,12 +425,13 @@ static void _gl_display(void)
 	snprintf(abs_path_to_image,PATH_MAX, "%s%s", res_dir_path, "vertical_more_ic.png");
 
 	evas_object_image_file_set(more_image, abs_path_to_image, NULL);
-	evas_object_geometry_set(more_image, 330, 162, 35, 35);
+	evas_object_geometry_set(more_image, 310, 150, 60, 60);
 	dlog_print(DLOG_INFO, LOG_TAG, "image_path : %s",abs_path_to_image);
 	evas_object_size_hint_weight_set(more_image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(more_image, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
-	// 더보기 버튼에 open callback 함수 달아줌
+	// 더보기 버튼에 long click timer로 opened_cb 함수 달아줌.
+	//pius_object_longclick_add(more_image, _opened_cb, NULL);
 	evas_object_event_callback_add (more_image, EVAS_CALLBACK_MOUSE_DOWN, _opened_cb, (void*)more_image);
 	evas_object_show(more_image);
 
@@ -380,8 +448,7 @@ static void _gl_sub_display(int index)
 	Evas_Object *symbol_genlist = NULL;
 	int i = 0;
 
-	//setting 버튼 없애기.
-	//evas_object_event_callback_del(more_image, EVAS_CALLBACK_MOUSE_DOWN, _opened_cb);
+	//setting 버튼 안 보이게 하기.
 	evas_object_geometry_set(more_image, 0, 0, 10, 10);
 	evas_object_image_file_set(more_image, NULL, NULL);
 	setting_on = 0;
@@ -399,25 +466,30 @@ static void _gl_sub_display(int index)
 			view_append_item_to_genlist(symbol_genlist, "core.1text", (void *)i, _create_core_list, (void *)i);
 		break;
 	case 1:
-		view_append_item_to_genlist(symbol_genlist, "mart.title", NULL, NULL, NULL);
-			for (i = 0; i < MART_ITEMS; i++)
-				view_append_item_to_genlist(symbol_genlist, "mart.1text", (void *)i, _create_mart_list, (void *)i);
+		view_append_item_to_genlist(symbol_genlist, "corona.title", NULL, NULL, NULL);
+			for (i = 0; i < CORONA_ITEMS; i++)
+				view_append_item_to_genlist(symbol_genlist, "corona.1text", (void *)i, _create_corona_list, (void *)i);
 			break;
+
 	case 2:
-		view_append_item_to_genlist(symbol_genlist, "class.title", NULL, NULL, NULL);
-			for (i = 0; i < CLASS_ITEMS; i++)
-				view_append_item_to_genlist(symbol_genlist, "class.1text", (void *)i, _create_class_list, (void *)i);
-			break;
-	case 3:
 		view_append_item_to_genlist(symbol_genlist, "food.title", NULL, NULL, NULL);
 			for (i = 0; i < FOOD_ITEMS; i++)
 				view_append_item_to_genlist(symbol_genlist, "food.1text", (void *)i, _create_food_list, (void *)i);
 			break;
-	case 4:
+
+
+	case 3:
 		view_append_item_to_genlist(symbol_genlist, "hospital.title", NULL, NULL, NULL);
 			for (i = 0; i < HOSPITAL_ITEMS; i++)
 				view_append_item_to_genlist(symbol_genlist, "hospital.1text", (void *)i, _create_hospital_list, (void *)i);
 			break;
+
+	case 4:
+		view_append_item_to_genlist(symbol_genlist, "mart.title", NULL, NULL, NULL);
+			for (i = 0; i < MART_ITEMS; i++)
+				view_append_item_to_genlist(symbol_genlist, "mart.1text", (void *)i, _create_mart_list, (void *)i);
+			break;
+
 	case 5:
 		view_append_item_to_genlist(symbol_genlist, "pe.title", NULL, NULL, NULL);
 			for (i = 0; i < PE_ITEMS; i++)
@@ -526,6 +598,13 @@ static void _create_class_list(void *data, Evas_Object *obj, void *event_info)
 	int index = (int)data;
 	tts_h *tts = view_get_tts();
 	enter_tts(tts, index, "class");
+}
+
+static void _create_corona_list(void *data, Evas_Object *obj, void *event_info)
+{
+	int index = (int)data;
+	tts_h *tts = view_get_tts();
+	enter_tts(tts, index, "corona");
 }
 
 static void _create_mart_list(void *data, Evas_Object *obj, void *event_info)

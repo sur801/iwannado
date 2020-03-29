@@ -36,5 +36,21 @@ Evas_Object * more_image;
 static void _create_category_list(void *data, Evas_Object *obj, void *event_info);
 void _opened_cb(void *data, Evas_Object *obj, void *event_info);
 
+/*long click timer*/
+static const char* _klongtimer = "_long_timer";
+static long _long_click_time = 1; // 1 sec default
+static Eina_Bool _long_press_cb(void *data);
+static void _mouse_down(void *data, Evas *e, Evas_Object *obj, void *event_info);
+static void _mouse_up(void *data, Evas *e, Evas_Object *obj, void *event_info);
+static void _mouse_move(void *data, Evas *e, Evas_Object *obj, void *event_info);
+void pius_object_longclick_time_set(double time);
+double pius_object_longclick_time_get();
+void pius_object_longclick_add(Evas_Object *obj, Evas_Smart_Cb func, const void *data);
+
+
+
+
+
+
 
 #endif

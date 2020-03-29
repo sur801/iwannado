@@ -56,8 +56,8 @@ const char *get_text_to_speech(int index, void* user_data) {
 
 	if (!strcmp(style, "core")) {
 		return data_get_core_text((void *)index, NULL, "elm.text");
-	} else if (!strcmp(style, "class")) {
-		return data_get_class_text((void *)index, NULL, "elm.text");
+	} else if (!strcmp(style, "corona")) {
+		return data_get_corona_content((void *)index, NULL, "elm.text");
 	} else if (!strcmp(style, "mart")) {
 		return data_get_mart_text((void *)index, NULL, "elm.text");
 	} else if (!strcmp(style, "food")) {

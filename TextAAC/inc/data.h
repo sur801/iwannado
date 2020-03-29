@@ -42,6 +42,7 @@ void data_set_category_int_value(int index, int value);
 void data_get_resource_path(const char *edj_file_in, char *file_path_out, int file_path_max);
 
 char *data_get_core_title_text(void *data, Evas_Object *obj, const char *part);
+char *data_get_corona_title_text(void *data, Evas_Object *obj, const char *part);
 char *data_get_class_title_text(void *data, Evas_Object *obj, const char *part);
 char *data_get_mart_title_text(void *data, Evas_Object *obj, const char *part);
 char *data_get_food_title_text(void *data, Evas_Object *obj, const char *part);
@@ -52,6 +53,8 @@ char *data_get_setting_title_text(void *data, Evas_Object *obj, const char *part
 
 char *data_get_core_text(void *data, Evas_Object *obj, const char *part);
 char *data_get_class_text(void *data, Evas_Object *obj, const char *part);
+char *data_get_corona_text(void *data, Evas_Object *obj, const char *part);
+char *data_get_corona_content(void *data, Evas_Object *obj, const char *part);
 char *data_get_mart_text(void *data, Evas_Object *obj, const char *part);
 char *data_get_food_text(void *data, Evas_Object *obj, const char *part);
 char *data_get_hospital_text(void *data, Evas_Object *obj, const char *part);

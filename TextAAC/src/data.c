@@ -33,16 +33,17 @@ static char *func_its[] = {
 
 static char *category_its[] = {
 	/*** 1line styles ***/
-	"핵심어휘",
-	"구매",
-	"교실",
-	"밥",
+	"자주 쓰는 말",
+	"코로나",
+	"음식",
 	"병원",
+	"마트",
 	"체육",
 	/* do not delete below */
 	NULL
 };
 
+static char *class_its[];
 static char *core_its[] = {
 	/*** 1line styles ***/
 	"예",
@@ -60,6 +61,8 @@ static char *core_its[] = {
 };
 
 
+
+
 static char *mart_its[] = {
 	"안녕하세요",
 	"얼마에요?",
@@ -73,18 +76,34 @@ static char *mart_its[] = {
 };
 
 
-static char *class_its[] = {
-	"공부해요",
-	"앉아요",
-	"교실",
-	"색칠해요",
-	"써요",
-	"넘겨요",
-	"풀",
-	"가위",
-	"오려요",
+static char *corona_its[] = {
+	"코로나란",
+	"원인",
+	"증상",
+	"치료법",
+	"현황",
+	"첫번째 예방법",
+	"두번째 예방법은?",
+	"선별진료소란?",
+	"검사 방법은?",
+	"추가 질문 있나요?",
 	NULL
 };
+
+static char *corona_its_value[] = {
+	"중국 우한에서 발생한 폐렴은 신종 코로나 바이러스인 2019년 12월 처음 인체 감염이 확인됐다는 의미에서 '코로나19'로 불리웁니다. 중국 우한에서 발생한 바이러스는 기존 코로나 바이러스와는 성질이 달라 신종 코로나 바이러스로 분류됐습니다.",
+	"국제보건기구(WHO)에 따르면 우한에서 발생한 새로운 코로나 바이러스의 확산은 동물에서 비롯된 것으로 보고 있습니다. 신종 코로나 바이러스는 새로운 바이러스이기 때문에 감염 경로는 아직 명확하게 밝혀지지 않은 상태입니다.",
+	"코로나19에 감염되면 2~3일에서 최장 2주 정도 잠복기를 거쳤다가 다양한 증상이 나타납니다. 37.5도 이상의 고열, 기침, 인후통, 가래, 근육통, 두통, 호흡곤란, 폐렴 등의 증상이 발생합니다. 폐 손상에 따른 호흡부전으로 심하면 사망에 이를 수도 있습니다.",
+	"현재까지 코로나19 치료법은 없습니다. 증상에 따른 약제를 사용하고 에이즈 치료제나 항말라리아 제제를 이용하여 치료한 사례가 있으며 호흡곤란을 호소하는 경우 산소 마스크를 적용할 수 있습니다.",
+	"어제 기준으로 국내 코로나 확진자는 9478명, 서울은 390명, 마포구는 14명 확진받았습니다.",
+	"철저한 손씻기가 가장 중요한 감염병 예방법입니다. 사람의 분비물은 직접 튀는 경우보다, 그 분비물이 어딘가에 묻었는데 손으로 만져서 몸으로 들어올 확률이 더 높다고 알려져 있습니다. 흐르는 물에 비누를 이용하여 30초 이상 손을 씻으면 바이러스는 거의 다 죽거나 힘이 약해져 감염을 일으키기 힘들다고 합니다.",
+	"마스크는 감염자의 분비물이 공기 중으로 날아가지 않게하고, 공기 중의 바이러스가 호흡기를 통해 들어오지 못하도록 막아주는 역할을 합니다. 기침 시에는 분비물이 손이나 공기 중에 뿌려지지 않도록 옷소매에 하는 것이 좋습니다. 또 호흡기 증상이 있는 사람과의 밀접한 접촉을 피하고 사람 많이 모인 곳에는 가지 않아야 하겠습니다.",
+	"만약 코로나19에 걸린것 같으면 마포구 보건소 선별진료소에 가서 검사 받아야합니다.ß",
+	"선별진료소에 가면 상담과 열을 측정하고 가래검사, 입 면봉검사,  코면봉검사를 하게됩니다, 결과는 다음날 나옵니다.",
+	"코로나19 설명은 끝났습니다. 혹시 질문있는 사람 있어요?",
+	NULL
+};
+
 
 static char *food_its[] = {
 	"먹어요",
@@ -216,6 +235,14 @@ char *data_get_class_title_text(void *data, Evas_Object *obj, const char *part)
 	return strdup(buf);
 }
 
+char *data_get_corona_title_text(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[BUF_LEN];
+
+	snprintf(buf, sizeof(buf), "%s", "코로나");
+	return strdup(buf);
+}
+
 char *data_get_mart_title_text(void *data, Evas_Object *obj, const char *part)
 {
 	char buf[BUF_LEN];
@@ -319,6 +346,39 @@ char *data_get_class_text(void *data, Evas_Object *obj, const char *part)
 
 	return NULL;
 }
+
+char *data_get_corona_text(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[BUF_LEN];
+	int index = (int)data;
+
+	if (!strcmp(part, "elm.text")) {
+		snprintf(buf, sizeof(buf), "%s", corona_its[index]);
+		return strdup(buf);
+	} else if (!strcmp(part, "elm.text.1")) {
+		snprintf(buf, sizeof(buf), "%s", "30 seconds");
+		return strdup(buf);
+	}
+
+	return NULL;
+}
+
+char *data_get_corona_content(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[BUF_LEN];
+	int index = (int)data;
+
+	if (!strcmp(part, "elm.text")) {
+		snprintf(buf, sizeof(buf), "%s", corona_its_value[index]);
+		return strdup(buf);
+	} else if (!strcmp(part, "elm.text.1")) {
+		snprintf(buf, sizeof(buf), "%s", "30 seconds");
+		return strdup(buf);
+	}
+
+	return NULL;
+}
+
 
 char *data_get_mart_text(void *data, Evas_Object *obj, const char *part)
 {

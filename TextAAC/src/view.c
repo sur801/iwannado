@@ -36,6 +36,7 @@ static struct view_info {
 	Eext_Circle_Surface *circle_surface;
 	tts_h tts;
 	stt_h stt;
+
 } s_info = {
 	.win = NULL,
 	.conform = NULL,
@@ -155,6 +156,11 @@ static void _create_category_list(void *data, Evas_Object *obj, void *event_info
 Evas_Object* view_get_layout(){
 	return s_info.layout;
 }
+
+Evas_Object* view_get_conform(){
+	return s_info.conform;
+}
+
 /*
  * @brief: Create Essential Object window, conformant and layout
  */
@@ -192,7 +198,6 @@ void view_create(void)
 		evas_object_del(s_info.win);
 		return;
 	}
-
 
 
 	/* Show window after main view is set up */
@@ -449,12 +454,13 @@ Evas_Object *view_create_label(Evas_Object *parent)
 	return label;
 }
 
+
+
+
 /*
  * @brief: Make a naviframe and set to parent
  * @param[parent]: Object to which you want to set naviframe
  */
-
-
 static void
 _naviframe_back_cb(void *data EINA_UNUSED, Evas_Object *obj, void *event_info EINA_UNUSED)
 {
@@ -469,18 +475,18 @@ _naviframe_back_cb(void *data EINA_UNUSED, Evas_Object *obj, void *event_info EI
 	   setting_on --;
 	   dlog_print(DLOG_INFO, LOG_TAG, "OUT OF SETTING\n");
 
-		more_image = elm_image_add(category_genlist);
 		char abs_path_to_image[PATH_MAX] = {0,};
 		char *res_dir_path = app_get_resource_path();
 		snprintf(abs_path_to_image,PATH_MAX, "%s%s", res_dir_path, "vertical_more_ic.png");
 
 		evas_object_image_file_set(more_image, abs_path_to_image, NULL);
-		evas_object_geometry_set(more_image, 330, 162, 35, 35);
+		evas_object_geometry_set(more_image, 310, 150, 60, 60);
 		dlog_print(DLOG_INFO, LOG_TAG, "image_path : %s",abs_path_to_image);
 		evas_object_size_hint_weight_set(more_image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 		evas_object_size_hint_align_set(more_image, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
+
 		evas_object_show(more_image);
-		evas_object_event_callback_add(more_image, EVAS_CALLBACK_MOUSE_DOWN, _opened_cb, NULL);
    }
    eext_rotary_object_event_activated_set(category_genlist, EINA_TRUE);
 }
@@ -672,9 +678,9 @@ static Elm_Genlist_Item_Class *_set_genlist_item_class(const char *style)
 	} else if (!strcmp(style, "core.title")) {
 		item_class->item_style = "title";
 		item_class->func.text_get = data_get_core_title_text;
-	} else if (!strcmp(style, "class.title")) {						//qanda
+	} else if (!strcmp(style, "corona.title")) {						//qanda
 		item_class->item_style = "title";
-		item_class->func.text_get = data_get_class_title_text;
+		item_class->func.text_get = data_get_corona_title_text;
 	} else if (!strcmp(style, "mart.title")) {						//mart
 		item_class->item_style = "title";
 		item_class->func.text_get = data_get_mart_title_text;
@@ -701,9 +707,9 @@ static Elm_Genlist_Item_Class *_set_genlist_item_class(const char *style)
 	} else if (!strcmp(style, "core.1text")) {					//qanda
 		item_class->item_style = "1text";
 		item_class->func.text_get = data_get_core_text;
-	} else if (!strcmp(style, "class.1text")) {						//mart
+	} else if (!strcmp(style, "corona.1text")) {						//mart
 		item_class->item_style = "1text";
-		item_class->func.text_get = data_get_class_text;
+		item_class->func.text_get = data_get_corona_text;
 	} else if (!strcmp(style, "mart.1text")) {
 		item_class->item_style = "1text";
 		item_class->func.text_get = data_get_mart_text;

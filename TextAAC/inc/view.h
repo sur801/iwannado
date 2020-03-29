@@ -23,9 +23,10 @@
 tts_h *view_get_tts(void);
 stt_h *view_get_stt(void);
 
-Evas_Object* view_get_layout();
+Evas_Object* view_get_layout(void);
 Evas_Object *view_get_naviframe(void);
 Evas_Object *view_get_genlist(void);
+Evas_Object* view_get_conform();
 void view_set_genlist(Evas_Object *genlist);
 
 void view_create(void);
