@@ -8,9 +8,11 @@
 #ifndef VIEW_H_
 #define VIEW_H_
 
+#include "main.h"
 #define GPS_ITEM 2
 
-
+int gps_state;
+Evas_Object * gps_genlist;// for refresh gps setting genlist
 
 Evas_Object *view_create_circle_genlist(Evas_Object *parent);
 Elm_Object_Item *view_append_item_to_genlist(Evas_Object *genlist, const char *style,
@@ -25,6 +27,15 @@ Eina_Bool state; // state variable for gps checkbox
 Evas_Object * setting_genlist;// for refresh default setting genlist
 Evas_Object * phone_genlist; // for refresh default phone genlist
 static void _phone_delete_cb(void *data, Evas_Object *obj, void *event_info);
-void _phone_add(void);
+static void _phone_add_cb(void *data, Evas_Object *obj, void *event_info);
 
+/*db 관리 함수들*/
+int CreatePhoneTable(appdata_s *ad);
+void init_phonedb(appdata_s *ad);
+void my_phonetable_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h);
+int InsertRecordPhone(appdata_s *ad, int id, unsigned char *phone);
+int read_db(appdata_s *ad);
+int CreateGpsTable(appdata_s *ad);
+void my_gpstable_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h);
+int InsertRecordGps(appdata_s *ad, int gps);
 #endif /* VIEW_H_ */

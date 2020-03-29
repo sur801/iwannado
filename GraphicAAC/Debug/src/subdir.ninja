@@ -16,6 +16,16 @@ build src/main.o.ast: build_c_fast_ast ../src/main.c
 build $sareportdir/src/main.o.xml: build_c_fast_sa src/main.o.ast || externalFnMap.txt
 build src/main.o.txt: build_c_api ../src/main.c 
 build $coveragedir/src/main.o.cov: build_cov ../src/main.c 
+build src/sendGPS.o: build_c ../src/sendGPS.c 
+build src/sendGPS.o.ast: build_c_fast_ast ../src/sendGPS.c 
+build $sareportdir/src/sendGPS.o.xml: build_c_fast_sa src/sendGPS.o.ast || externalFnMap.txt
+build src/sendGPS.o.txt: build_c_api ../src/sendGPS.c 
+build $coveragedir/src/sendGPS.o.cov: build_cov ../src/sendGPS.c 
+build src/sendSMS.o: build_c ../src/sendSMS.c 
+build src/sendSMS.o.ast: build_c_fast_ast ../src/sendSMS.c 
+build $sareportdir/src/sendSMS.o.xml: build_c_fast_sa src/sendSMS.o.ast || externalFnMap.txt
+build src/sendSMS.o.txt: build_c_api ../src/sendSMS.c 
+build $coveragedir/src/sendSMS.o.cov: build_cov ../src/sendSMS.c 
 build src/view.o: build_c ../src/view.c 
 build src/view.o.ast: build_c_fast_ast ../src/view.c 
 build $sareportdir/src/view.o.xml: build_c_fast_sa src/view.o.ast || externalFnMap.txt
