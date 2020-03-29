@@ -5,6 +5,8 @@
 #include "data.h"
 #include "main.h"
 #include "view.h"
+#include "sendSMS.h"
+#include "sendGPS.h"
 #include <sqlite3.h>
 
 #include<string.h>
@@ -69,6 +71,8 @@ static void _icon_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 
 	if (state == EINA_TRUE) {
 
+		//location 권한 획득
+		app_check_and_request_permission();
 
 		elm_check_state_set(obj, EINA_TRUE);
 
@@ -341,6 +345,10 @@ static void _certifi_check(void *data, Evas_Object *obj, void *event_info){
 		}
 		strcpy(phone_its[phone_cnt], phone_check);
 
+		//인증번호 맞으면 위치 정보 보내기 시작
+		dlog_print(DLOG_INFO, "SOLAPI", "START TO GET LOCATION");
+		location_init();
+
 		//db에 휴대폰 데이터 추가. id, phone, count, gps
 		int id = phone_cnt;// id for phone number. starts to 0
 		phone_cnt++; // increase number of phone number;
@@ -389,11 +397,11 @@ static void _certifi_clicked(void *data, Evas_Object *obj, void *event_info){
 
 	dlog_print(DLOG_INFO, LOG_TAG, "random number : %d\n", random );
 
+	// 폰으로 인증번호 전송하기
+	sendSMS(phone_check,random);
 
 	Evas_Object * layout = elm_layout_add(view_get_naviframe());
 	elm_layout_theme_set(layout, "layout", "application", "default");
-
-
 
 	Evas_Object * box = elm_box_add(layout);
 	elm_box_horizontal_set(box, EINA_FALSE);
