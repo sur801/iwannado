@@ -31,7 +31,6 @@ appdata_s s_info = {
 		.item_count = 6,
 		.label = NULL,
 		.g_layer = NULL,
-		.gps_db = NULL,
 		.phone_db = NULL,
 		.current_key = NULL,
 };
@@ -312,7 +311,7 @@ static void gui_tts(void *user_data, Evas* e,  Evas_Object *obj, void *event_inf
 }
 
 
-//naviframe item들 pop될때 실행되는 callback 함수
+//naviframe item들 back 버튼 눌러서 pop될때 실행되는 callback 함수
 static void _naviframe_back_cb(void *data EINA_UNUSED, Evas_Object *obj, void *event_info EINA_UNUSED)
 {
    dlog_print(DLOG_INFO, LOG_TAG, "back button setting:on : %d\n",setting_on);
@@ -323,8 +322,15 @@ static void _naviframe_back_cb(void *data EINA_UNUSED, Evas_Object *obj, void *e
 
    if(setting_on > 1){
 	   // gps setting 창에서 back버튼 눌렀을때, setting 창 아이템들 리프레시
-	   if(setting_on==2)
+	   if(setting_on==2){
+		   dlog_print(DLOG_INFO, LOG_TAG, "update setting_genlist\n");
 		   elm_genlist_realized_items_update(setting_genlist);
+		   eext_rotary_object_event_activated_set(setting_genlist, EINA_TRUE);
+	   } else if(setting_on==4){
+		   eext_rotary_object_event_activated_set(phone_genlist, EINA_TRUE);
+	   } else if(setting_on==3) {
+		   eext_rotary_object_event_activated_set(gps_genlist, EINA_TRUE);
+	   }
 	   setting_on--;
 
 
@@ -757,6 +763,7 @@ _layout_create(appdata_s *ad)
 
 static Eina_Bool _naviframe_pop_cb(void *data, Elm_Object_Item *it)
 {
+	dlog_print(DLOG_INFO, LOG_TAG, "hello3\n");
 	ui_app_exit();
 
 	return EINA_FALSE;
@@ -848,63 +855,17 @@ create_base_gui()
 	elm_object_content_set(s_info.nf, s_info.layout);
 
 	app_start = 0;
-	//init_gpsdb(&s_info);
+
 	init_phonedb(&s_info);
 
+	if(!app_start){
+		//세팅 창 처음 킬때만 read함.
+		read_db(get_ad());
+		app_start=1;
+	}
+
+
 }
-
-void
-app_request_response_cb(ppm_call_cause_e cause, ppm_request_result_e result, const char *privilege, void *user_data)
-{
-    if (cause == PRIVACY_PRIVILEGE_MANAGER_CALL_CAUSE_ERROR) {
-        /* Log and handle errors */
-
-        return;
-    }
-
-    switch (result) {
-        case PRIVACY_PRIVILEGE_MANAGER_REQUEST_RESULT_ALLOW_FOREVER:
-            /* Update UI and start accessing protected functionality */
-            break;
-        case PRIVACY_PRIVILEGE_MANAGER_REQUEST_RESULT_DENY_FOREVER:
-            /* Show a message and terminate the application */
-            break;
-        case PRIVACY_PRIVILEGE_MANAGER_REQUEST_RESULT_DENY_ONCE:
-            /* Show a message with explanation */
-            break;
-    }
-}
-
-
-//for check Privacy-related Permissions
-void
-app_check_and_request_permission()
-{
-    ppm_check_result_e result;
-    const char *privilege = "http://tizen.org/privilege/location";
-
-    int ret = ppm_check_permission(privilege, &result);
-
-    if (ret == PRIVACY_PRIVILEGE_MANAGER_ERROR_NONE) {
-        switch (result) {
-            case PRIVACY_PRIVILEGE_MANAGER_CHECK_RESULT_ALLOW:
-                /* Update UI and start accessing protected functionality */
-                break;
-            case PRIVACY_PRIVILEGE_MANAGER_CHECK_RESULT_DENY:
-                /* Show a message and terminate the application */
-                break;
-            case PRIVACY_PRIVILEGE_MANAGER_CHECK_RESULT_ASK:
-                ret = ppm_request_permission(privilege, app_request_response_cb, NULL);
-                /* Log and handle errors */
-                break;
-        }
-    }
-    else {
-        /* ret != PRIVACY_PRIVILEGE_MANAGER_ERROR_NONE */
-        /* Handle errors */
-    }
-}
-
 
 static bool
 app_create(void *data)

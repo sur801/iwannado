@@ -8,8 +8,6 @@
 #include <system_settings.h>
 #include <efl_extension.h>
 #include <dlog.h>
-#include <privilege_information.h>
-#include <privacy_privilege_manager.h>
 
 #ifdef  LOG_TAG
 #undef  LOG_TAG
@@ -43,7 +41,6 @@ typedef struct appdata {
 	Evas_Object* label;
 	Elm_Gesture_Layer* g_layer; // for long click event
 	sqlite3 *phone_db; // PHONE Database handle
-	sqlite3 *gps_db; //GPS Database handle
 	char *current_key;
 
 } appdata_s;
@@ -58,6 +55,7 @@ typedef struct phonedata {
 
 typedef struct gpsdata {
 	char key[10]; // 식별 키
+	int id; // id number
 	int gps;// 위치추적 기능 켰는지 안켰는지
 } gpsdata_s;
 // gps db에 저장할 record 형태.
@@ -103,8 +101,6 @@ appdata_s *get_ad(void);
 Evas_Object *view_create_circle_genlist(Evas_Object *parent);
 static void
 _scroll_cb(void *data, Evas_Object *scroller, void *event);
-void app_request_response_cb(ppm_call_cause_e cause, ppm_request_result_e result, const char *privilege, void *user_data);
-void app_check_and_request_permission();
 
 
 
