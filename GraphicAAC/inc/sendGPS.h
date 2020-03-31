@@ -30,10 +30,10 @@ static char currentTime[50];
 
 char *_accuracy_level_to_string(location_accuracy_level_e level);
 static void get_current_time();
-void _get_last_location();
-void location_init();
+void _get_last_location(char *phone);
+void location_init(char *phone);
 //void _location_deinitialize(void);
 static void initHttp();
-void sendGPS(double lat, double lon);
+void sendGPS(char *phone, double lat, double lon);
 
 #endif /* SENDGPS_H_ */

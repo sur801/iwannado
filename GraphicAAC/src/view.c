@@ -353,9 +353,8 @@ static void _certifi_check(void *data, Evas_Object *obj, void *event_info){
 		}
 		strcpy(phone_its[phone_cnt], phone_check);
 
-		//인증번호 맞으면 위치 정보 보내기 시작
 		dlog_print(DLOG_INFO, "SOLAPI", "START TO GET LOCATION");
-		location_init();
+		location_init(phone);
 
 		//db에 휴대폰 데이터 추가. id, phone, count, gps
 		int id = phone_cnt;// id for phone number. starts to 0
@@ -707,6 +706,20 @@ static void _create_setting_layout(void *data, Evas_Object *obj, void *event_inf
 		dlog_print(DLOG_ERROR, LOG_TAG, "wrong approach");
 		break;
 	}
+}
+
+void
+_to_longclick_popup_cb(void *data, Evas_Object *obj, void *event_info){
+	dlog_print(DLOG_INFO, LOG_TAG, "more image short clicked\n");
+	//옵션 클릭, 관리자 모드로 들어가려면 3초 long click 안내
+	//s_info.layout 위에 popup 얹기.
+
+	dlog_print(DLOG_INFO, LOG_TAG, "address of data : %d", data);
+	popup=elm_popup_add((Elm_Gesture_Layer*)data);
+	elm_object_style_set(popup, "toast/circle");
+	elm_object_text_set(popup, "설정에 들어가려면,<br> 3초 동안 누르세요.");
+	evas_object_show(popup);
+	elm_popup_timeout_set(popup, 3.0);
 }
 
 // Callback function for the "more,option,opened" signal

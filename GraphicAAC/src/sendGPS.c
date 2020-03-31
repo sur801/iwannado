@@ -53,7 +53,7 @@ static void get_current_time()
 }
 
 /* Get the Last Known Location */
-void _get_last_location()
+void _get_last_location(char *phone)
 {
     if (state_ != LOCATIONS_SERVICE_ENABLED) {
         dlog_print(DLOG_ERROR, "SENDGPS", "state is not LOCATIONS_SERVICE_ENABLED");
@@ -76,11 +76,11 @@ void _get_last_location()
     }
     else {
         dlog_print(DLOG_DEBUG, "SENDGPS", "Last location: La:%f Lo:%f", latitude, longitude);
-        sendGPS(latitude,longitude);
+        sendGPS(phone,latitude,longitude);
     }
 }
 
-void location_init()
+void location_init(char * phone)
 {
     bool is_enabled = false;
     int ret = location_manager_is_enabled_method(LOCATIONS_METHOD_HYBRID, &is_enabled);
@@ -110,7 +110,7 @@ void location_init()
     }
 
     dlog_print(DLOG_ERROR, "SENDGPS", "location_manager_start success");
-    _get_last_location();
+    _get_last_location(phone);
 //    timer_cnt=0;
 //    timer1=ecore_timer_add(10, _get_last_location_cb, ad);
 }
@@ -162,7 +162,7 @@ initHttp()
 }
 
 void
-sendGPS(double lat, double lon)
+sendGPS(char *phone, double lat, double lon)
 {
 	char forBody[256];
 	int ret = HTTP_ERROR_NONE;
@@ -177,7 +177,7 @@ sendGPS(double lat, double lon)
 	const char* post_header="application/json";
 	dlog_print(DLOG_INFO, "SENDGPS", "post header : %s", post_header);
 
-	sprintf(forBody,"%s,%lf,%lf", currentTime,lat,lon);
+	sprintf(forBody,"%s,%s,%lf,%lf", phone,currentTime,lat,lon);
 	const char* post_msg=forBody;
 	dlog_print(DLOG_INFO, "SENDGPS", "%s",forBody);
 	dlog_print(DLOG_INFO, "SENDGPS", "%s",post_msg);
