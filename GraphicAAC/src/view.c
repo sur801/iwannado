@@ -451,6 +451,7 @@ static void _certifi_clicked(void *data, Evas_Object *obj, void *event_info){
 
 	elm_object_content_set(layout, box);
 
+	elm_naviframe_item_pop(view_get_naviframe());
 	evas_object_show(layout);
 	view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
 
@@ -473,6 +474,7 @@ static void _phone_add_cb(void *data, Evas_Object *obj, void *event_info){
 	Evas_Object * label = elm_label_add(box);
 	elm_object_style_set(label, "marker");
 	elm_object_text_set(label,"<align=center><font_size=30><br>휴대전화 번호 입력</font><algin>");
+	evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	//evas_object_color_set(label, 0, 92, 230, 255); 칼라 세팅
 	evas_object_show(label);
     elm_box_pack_end(box,label);
@@ -487,7 +489,6 @@ static void _phone_add_cb(void *data, Evas_Object *obj, void *event_info){
     // 개인정보 동의를 위한 체크 박스
     Evas_Object *check = elm_check_add(sub_box);
 	elm_object_style_set(check, "small popup");
-	evas_object_size_hint_min_set(check, 40, 40);
 	evas_object_show(check);
 	elm_box_pack_end(sub_box, check);//sub box에 check box 집어넣기.
 
@@ -495,7 +496,7 @@ static void _phone_add_cb(void *data, Evas_Object *obj, void *event_info){
 
 	Evas_Object * label2 = elm_label_add(sub_box); // 개인정보 동의
 	elm_object_style_set(label2, "marker");
-	elm_object_text_set(label2,"<align=center><font_size=25><br>개인정보 수집 동의</font><algin>");
+	elm_object_text_set(label2,"<align=center><font_size=30><br>   개인정보 수집 동의</font><algin>");
 	evas_object_show(label2);
 	elm_box_pack_end(sub_box, label2); //sub box에 check box 집어넣기.
 
