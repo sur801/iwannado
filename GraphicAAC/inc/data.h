@@ -106,6 +106,7 @@ static char *setting_its[] = {
 static char *gps_its[] = {
 	"사용 안함",
 	"보호자 전화번호 설정",
+	"사용 방법 안내",
 	NULL
 };
 

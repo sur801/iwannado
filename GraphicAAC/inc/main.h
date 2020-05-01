@@ -101,6 +101,7 @@ Evas_Object *view_get_layout(void);
 Evas_Object *view_get_conform(void);
 Evas_Object *view_get_win(void);
 appdata_s *get_ad(void);
+appdata_s *get_label(void);
 Evas_Object *view_create_circle_genlist(Evas_Object *parent);
 static void
 _scroll_cb(void *data, Evas_Object *scroller, void *event);

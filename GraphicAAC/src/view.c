@@ -478,7 +478,7 @@ static void _phone_add_cb(void *data, Evas_Object *obj, void *event_info){
     // 휴대전화 번호 입력
 	Evas_Object * label = elm_label_add(box);
 	elm_object_style_set(label, "marker");
-	elm_object_text_set(label,"<align=center><font_size=30><br>휴대전화 번호 입력</font><algin>");
+	elm_object_text_set(label,"<align=center><font_size=30><br>휴대전화 번호 입력</font><align>");
 	evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	//evas_object_color_set(label, 0, 92, 230, 255); 칼라 세팅
 	evas_object_show(label);
@@ -501,7 +501,8 @@ static void _phone_add_cb(void *data, Evas_Object *obj, void *event_info){
 
 	Evas_Object * label2 = elm_label_add(sub_box); // 개인정보 동의
 	elm_object_style_set(label2, "marker");
-	elm_object_text_set(label2,"<align=center><font_size=30><br>   개인정보 수집 동의</font><algin>");
+	elm_object_text_set(label2,"<align=center><font_size=30><br>    <link>개인정보 수집 동의</link></font><align>");
+	evas_object_smart_callback_add(label2, "clicked", _to_longclick_popup_cb, (void *)2);
 	evas_object_show(label2);
 	elm_box_pack_end(sub_box, label2); //sub box에 check box 집어넣기.
 
@@ -621,21 +622,51 @@ static void _phone_delete_cb(void *data, Evas_Object *obj, void *event_info) {
 
 }
 
-
-static void _phone_setting(void *data, Evas_Object *obj, void *event_info)
-{
-
+static void guide_view(){
 	setting_on = 3;
+	Evas_Object * layout = elm_layout_add(view_get_naviframe());
+	elm_layout_theme_set(layout, "layout", "application", "default");
 
-	phone_genlist = NULL;
+	/*guide page scroller 생성 */
 
-//	if(!app_start){
-//		//세팅 창 처음 킬때만 read함.
-//		read_db(get_ad());
-//		app_start=1;
-//	}
+	Evas_Object* scroller;
+	Evas_Object *circle_scroller;
+	scroller = elm_scroller_add(layout);
+	elm_scroller_policy_set(scroller, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
 
+	/*label붙이기*/
+	Evas_Object * label = elm_label_add(scroller);
+	elm_object_text_set(label,
+	"<br><br><br><br><br><align=left><font_size=20>        1. 사용자 조회 기능을 '사용안함'에서 <br>        '사용중'으로 변경합니다.</font><br><br>"
+	"<font_size=20>        2. '보호자 전화번호 관리'에서 사용자<br>        번호를 등록합니다.</font><br><br>"
+	"<font_size=20>        3. watachaac.com에 방문하여, 상단의<br>        '사용자 위치 조회' 탭을 클릭합니다.</font><br><br>"
+	"<font_size=20>        4. 등록된 보호자 전화번호를 입력하여<br>        사용자 위치를 조회할 수 있습니다.</font></align><br><br>");
+
+	elm_object_style_set(label, "marker");
+	evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_show(label);
+
+
+	elm_object_content_set(scroller, label);
+
+	Eext_Circle_Surface *surface = eext_circle_surface_conformant_add(view_get_naviframe());
+	circle_scroller = eext_circle_object_scroller_add(scroller, surface);
+	eext_circle_object_scroller_policy_set(circle_scroller, ELM_SCROLLER_POLICY_OFF, ELM_SCROLLER_POLICY_AUTO);
+	eext_rotary_object_event_activated_set(circle_scroller, EINA_TRUE);
+
+	evas_object_show(scroller);
+	elm_object_part_content_set(layout, "elm.swallow.bg", scroller);
+
+
+	evas_object_show(layout);
+
+	view_push_item_to_naviframe(view_get_naviframe(), layout, NULL, NULL);
+
+}
+static void phone_setting(){
+	setting_on = 3;
 	/* make genlist and shape genlist circle */
+	phone_genlist = NULL;
 	phone_genlist = view_create_circle_genlist(view_get_naviframe());
 	view_push_item_to_naviframe(view_get_naviframe(), phone_genlist,NULL, NULL);
 	//append title to genlist.
@@ -658,6 +689,22 @@ static void _phone_setting(void *data, Evas_Object *obj, void *event_info)
 		dlog_print(DLOG_INFO, LOG_TAG, "phone item : %s\n", phone_its[i]);
 	}
 	view_append_item_to_genlist(phone_genlist, "padding", NULL, NULL, NULL);
+}
+
+static void _parents_menu(void *data, Evas_Object *obj, void *event_info)
+{
+
+	int op = (int)data;
+	switch (op) {
+		case 1:
+			phone_setting();
+			break;
+		case 2:
+			guide_view();
+			break;
+		default:
+			break;
+	}
 
 }
 
@@ -681,7 +728,7 @@ static void _gps_setting(void){
 		if(i==0)
 			view_append_item_to_genlist(gps_genlist, "1text.1icon.1", (void *)i,NULL, (void *)i);
 		else
-			view_append_item_to_genlist(gps_genlist, "gps.1text", (void *)i,_phone_setting, (void *)i);
+			view_append_item_to_genlist(gps_genlist, "gps.1text", (void *)i,_parents_menu, (void *)i);
 	}
     evas_object_show(gps_genlist);
 	//evas_object_show(layout);
@@ -730,10 +777,26 @@ _to_longclick_popup_cb(void *data, Evas_Object *obj, void *event_info){
 //	popup=elm_popup_add((Elm_Gesture_Layer*)data);
 	popup=elm_popup_add((Elm_Gesture_Layer*)view_get_conform());
 	elm_object_style_set(popup, "toast/circle");
-//	if (data == (int)1)
-	elm_object_text_set(popup, "보호자 모드에 들어가려면,<br>3초 동안 누르세요.");
-	elm_popup_timeout_set(popup, 2.0);
-	evas_object_smart_callback_add(popup, "timeout",_popup_timeout, data);
+	if (data == (int)1){
+		elm_object_text_set(popup, "보호자 모드에 들어가려면,<br>3초 동안 누르세요.");
+		elm_popup_timeout_set(popup, 2.0);
+		evas_object_smart_callback_add(popup, "timeout",_popup_timeout, data);
+	}
+	if (data==(int)2){
+		elm_object_text_set(popup,
+				"<font_size=16>1. 개인정보의 수집·이용 목적<br>"
+				"-보호자로 등록된 전화번호로만 사용자의 위치 조회를 가능케 하기 위함.<br>"
+				"<br>"
+				"2. 수집·이용하려는 개인정보의 항목<br>"
+				"-보호자의 전화번호<br>"
+				"<br>"
+				"3. 개인정보의 보유 및 이용 기간<br>"
+				"-사용자 삭제시까지 보유<br>"
+				"<br>"
+				"개인정보 수집 동의를 거부할 권리가 있으나, 사용자 위치 조회 기능이 제한됩니다.<br></font>");
+		elm_popup_timeout_set(popup, 2.0);
+		evas_object_smart_callback_add(popup, "timeout",_popup_timeout, data);
+	}
 	evas_object_show(popup);
 }
 

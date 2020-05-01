@@ -9,7 +9,7 @@
 #define VIEW_H_
 
 #include "main.h"
-#define GPS_ITEM 2
+#define GPS_ITEM 3
 
 int gps_state;
 Evas_Object * gps_genlist;// for refresh gps setting genlist
