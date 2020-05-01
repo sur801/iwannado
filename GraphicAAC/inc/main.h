@@ -75,7 +75,7 @@ typedef struct {
 
 static more_item_info detail_more_item[2] = {
 	{"Watch AAC란?", "", "image/more_option_icon_delete.png"},
-	{"위치추적 설정", "", "image/more_option_icon_delete.png"},
+	{"위치조회 기능설정", "", "image/more_option_icon_delete.png"},
 };
 
 char phone_its[100][20];
@@ -98,6 +98,7 @@ Elm_Object_Item *view_push_item_to_naviframe(Evas_Object *nf, Evas_Object *item,
 Evas_Object *view_create_circle_genlist(Evas_Object *parent);
 Evas_Object *view_get_naviframe(void);
 Evas_Object *view_get_layout(void);
+Evas_Object *view_get_conform(void);
 Evas_Object *view_get_win(void);
 appdata_s *get_ad(void);
 Evas_Object *view_create_circle_genlist(Evas_Object *parent);

@@ -99,7 +99,7 @@ static char *pe_its[] = {
 
 static char *setting_its[] = {
 	"정보",
-	"위치 추적 기능",
+	"위치 조회 기능",
 	NULL
 };
 

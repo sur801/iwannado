@@ -77,7 +77,7 @@ char *data_get_setting_title_text(void *data, Evas_Object *obj, const char *part
 {
 	char buf[BUF_LEN];
 
-	snprintf(buf, sizeof(buf), "%s", "설 정");
+	snprintf(buf, sizeof(buf), "%s", "보호자 모드");
 	return strdup(buf);
 }
 
@@ -119,7 +119,7 @@ char *data_get_gps_title_text(void *data, Evas_Object *obj, const char *part)
 {
 	char buf[BUF_LEN];
 
-	snprintf(buf, sizeof(buf), "%s", "위치 추적 기능");
+	snprintf(buf, sizeof(buf), "%s", "위치 조회 기능");
 	return strdup(buf);
 }
 

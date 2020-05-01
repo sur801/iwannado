@@ -353,6 +353,9 @@ static void _certifi_check(void *data, Evas_Object *obj, void *event_info){
 		}
 		strcpy(phone_its[phone_cnt], phone_check);
 
+		//인증번호 등록 완료 popup
+		_to_popup(2);
+
 		dlog_print(DLOG_INFO, "SOLAPI", "START TO GET LOCATION");
 		location_init(phone);
 
@@ -380,6 +383,7 @@ static void _certifi_check(void *data, Evas_Object *obj, void *event_info){
 	else{
 		// 인증번호 틀림.
 		dlog_print(DLOG_INFO, LOG_TAG, "not same! : %d %d\n", certifi_number,input_num);
+		_to_popup(3);
 	}
 	setting_on = 4;
 	elm_naviframe_item_pop(view_get_naviframe());
@@ -391,6 +395,7 @@ static void _certifi_check(void *data, Evas_Object *obj, void *event_info){
 //callback function for click sending certification number
 static void _certifi_clicked(void *data, Evas_Object *obj, void *event_info){
 
+	_to_popup(1);
 	setting_on = 5;
 	strcpy(phone_check, elm_object_text_get(entry));
 	// 인증번호 전송할 전화번호
@@ -537,6 +542,7 @@ static void _phone_add_cb(void *data, Evas_Object *obj, void *event_info){
 
 
 static void _delete_clicked(void *data, Evas_Object *obj, void *event_info) {
+	_to_popup(4);
 	int id = (int)data;
 	/*db에서 삭제하기*/
 
@@ -709,18 +715,48 @@ static void _create_setting_layout(void *data, Evas_Object *obj, void *event_inf
 	}
 }
 
+static void
+_popup_timeout(void *data, Evas_Object *obj, void *event_info) {
+	evas_object_del(obj);
+}
+
 void
 _to_longclick_popup_cb(void *data, Evas_Object *obj, void *event_info){
 	dlog_print(DLOG_INFO, LOG_TAG, "more image short clicked\n");
 	//옵션 클릭, 관리자 모드로 들어가려면 3초 long click 안내
 	//s_info.layout 위에 popup 얹기.
 
-	dlog_print(DLOG_INFO, LOG_TAG, "address of data : %d", data);
-	popup=elm_popup_add((Elm_Gesture_Layer*)data);
+	dlog_print(DLOG_INFO, LOG_TAG, "data : %d", data);
+//	popup=elm_popup_add((Elm_Gesture_Layer*)data);
+	popup=elm_popup_add((Elm_Gesture_Layer*)view_get_conform());
 	elm_object_style_set(popup, "toast/circle");
-	elm_object_text_set(popup, "설정에 들어가려면,<br> 3초 동안 누르세요.");
+//	if (data == (int)1)
+	elm_object_text_set(popup, "보호자 모드에 들어가려면,<br>3초 동안 누르세요.");
+	elm_popup_timeout_set(popup, 2.0);
+	evas_object_smart_callback_add(popup, "timeout",_popup_timeout, data);
 	evas_object_show(popup);
-	elm_popup_timeout_set(popup, 3.0);
+}
+
+static void
+_to_popup(int flag)
+{
+	popup=elm_popup_add((Elm_Gesture_Layer*)view_get_naviframe());
+	elm_object_style_set(popup, "toast/circle");
+	if (flag == 1){
+		elm_object_text_set(popup, "인증번호가<br>발송되었습니다.");
+	}
+	else if (flag == 2){
+		elm_object_text_set(popup, "전화번호 등록이<br>완료되었습니다.");
+	}
+	else if (flag == 3){
+		elm_object_text_set(popup, "인증번호가 일치하지 않습니다.<br>다시 등록해주세요.");
+	}
+	else if (flag == 4){
+		elm_object_text_set(popup, "해당 전화번호를<br>삭제하였습니다.");
+	}
+	elm_popup_timeout_set(popup, 2.0);
+	evas_object_smart_callback_add(popup, "timeout",_popup_timeout, NULL);
+	evas_object_show(popup);
 }
 
 // Callback function for the "more,option,opened" signal

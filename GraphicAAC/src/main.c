@@ -366,6 +366,11 @@ Evas_Object *view_get_layout(void)
 	return v_info.layout;
 }
 
+Evas_Object *view_get_conform(void)
+{
+	return s_info.conform;
+}
+
 Evas_Object *view_get_win(void)
 {
 	return s_info.win;
@@ -835,14 +840,11 @@ create_base_gui()
 	elm_gesture_layer_attach(s_info.g_layer, more_image);
 //	evas_object_smart_callback_add(more_image, "clicked", _to_longclick_popup_cb,NULL);
 	dlog_print(DLOG_INFO, LOG_TAG, "address of s_info.g_layer : %d", s_info.g_layer);
-	elm_gesture_layer_cb_set(s_info.g_layer, ELM_GESTURE_N_TAPS, ELM_GESTURE_STATE_END, _to_longclick_popup_cb, (void*)s_info.conform);
+//	elm_gesture_layer_cb_set(s_info.g_layer, ELM_GESTURE_N_TAPS, ELM_GESTURE_STATE_END, _to_longclick_popup_cb, (void*)s_info.conform);
+	elm_gesture_layer_cb_set(s_info.g_layer, ELM_GESTURE_N_TAPS, ELM_GESTURE_STATE_END, _to_longclick_popup_cb, 1);
 	elm_gesture_layer_cb_set(s_info.g_layer, ELM_GESTURE_N_LONG_TAPS, ELM_GESTURE_STATE_END, _opened_cb, (void*)more_image);
 	//evas_object_event_callback_add (more_image, EVAS_CALLBACK_MOUSE_DOWN, _opened_cb, (void*)more_image);
 	evas_object_show(more_image);
-
-
-
-
 
 	view_push_item_to_naviframe(s_info.nf, s_info.layout, _naviframe_pop_cb, NULL);
 
