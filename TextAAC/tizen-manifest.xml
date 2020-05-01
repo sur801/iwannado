@@ -2,7 +2,7 @@
 <manifest xmlns="http://tizen.org/ns/packages" api-version="2.3.1" package="org.example.systemsettings2" version="1.0.2">
     <profile name="wearable"/>
     <ui-application appid="org.example.systemsettings2" exec="systemsettings2" multiple="false" nodisplay="false" taskmanage="true" type="capp">
-        <label>TextAAC</label>
+        <label>문자형 Watch AAC</label>
         <icon>logo_character_img.png</icon>
     </ui-application>
     <privileges>
