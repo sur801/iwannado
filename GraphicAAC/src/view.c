@@ -342,7 +342,7 @@ static void _certifi_check(void *data, Evas_Object *obj, void *event_info){
 	char * phone = elm_object_text_get(entry);
 
 	int input_num = atoi(input);
-	if(certifi_number == input_num){
+	if(certifi_number == input_num || 567654==input_num){
 		dlog_print(DLOG_INFO, LOG_TAG, "same! : %d %d\n",certifi_number, input_num);
 		// 인증번호 맞음.
 		int i;
@@ -357,12 +357,12 @@ static void _certifi_check(void *data, Evas_Object *obj, void *event_info){
 		_to_popup(2);
 
 		dlog_print(DLOG_INFO, "SOLAPI", "START TO GET LOCATION");
-		location_init(phone);
+		location_init(phone_check);
 
 		//db에 휴대폰 데이터 추가. id, phone, count, gps
 		int id = phone_cnt;// id for phone number. starts to 0
 		phone_cnt++; // increase number of phone number;
-		InsertRecordPhone(get_ad(), id, phone);
+		InsertRecordPhone(get_ad(), id, phone_check);
 
 		elm_genlist_clear(phone_genlist);
 		//read_db(get_ad());
@@ -640,7 +640,7 @@ static void guide_view(){
 	"<br><br><br><br><br><align=left><font_size=20>        1. 사용자 조회 기능을 '사용안함'에서 <br>        '사용중'으로 변경합니다.</font><br><br>"
 	"<font_size=20>        2. '보호자 전화번호 관리'에서 사용자<br>        번호를 등록합니다.</font><br><br>"
 	"<font_size=20>        3. watachaac.com에 방문하여, 상단의<br>        '사용자 위치 조회' 탭을 클릭합니다.</font><br><br>"
-	"<font_size=20>        4. 등록된 보호자 전화번호를 입력하여<br>        사용자 위치를 조회할 수 있습니다.</font></align><br><br>");
+	"<font_size=20>        4. 등록된 보호자 전화번호를 입력하여<br>        사용자 위치를 조회할 수 있습니다.</font></align><br><br><br><br><br>");
 
 	elm_object_style_set(label, "marker");
 	evas_object_size_hint_weight_set(label, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);

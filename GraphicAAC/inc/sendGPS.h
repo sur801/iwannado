@@ -23,7 +23,7 @@ http_transaction_h transaction;
 location_manager_h manager;
 location_bounds_h bounds_poly;
 //Evas_Object *start, *stop;
-Ecore_Timer *timer1;
+Ecore_Timer *timer;
 int timer_cnt;//timer 발생 횟수
 location_service_state_e state_;
 static char currentTime[50];

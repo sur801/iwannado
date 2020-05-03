@@ -76,9 +76,41 @@ void _get_last_location(char *phone)
     }
     else {
         dlog_print(DLOG_DEBUG, "SENDGPS", "Last location: La:%f Lo:%f", latitude, longitude);
+        dlog_print(DLOG_INFO, "SENDGPS", "phone in not CB : %s", phone);
         sendGPS(phone,latitude,longitude);
     }
 }
+
+//callback for timer
+/* Get the Last Known Location */
+void _get_last_location_cb(char *phone, Evas_Object *obj, void *event_info)
+{
+	dlog_print(DLOG_INFO, "SENDGPS", "phone in CB : %s", phone);
+    if (state_ != LOCATIONS_SERVICE_ENABLED) {
+        dlog_print(DLOG_ERROR, "SENDGPS", "state is not LOCATIONS_SERVICE_ENABLED");
+        return;
+    }
+
+    int ret = 0;
+    dlog_print(DLOG_DEBUG, "SENDGPS", "_get_last_location_cb");
+
+    double altitude = 0, latitude = 0, longitude = 0, climb = 0, direction = 0, speed = 0;
+    double horizontal = 0, vertical = 0;
+    location_accuracy_level_e level;
+    time_t timestamp;
+
+    ret = location_manager_get_last_location(manager, &altitude, &latitude, &longitude,
+            &climb, &direction, &speed, &level,
+            &horizontal, &vertical, &timestamp);
+    if (LOCATIONS_ERROR_NONE != ret) {
+        dlog_print(DLOG_ERROR, "SENDGPS", "location_manager_get_last_location failed : %d", ret);
+    }
+    else {
+        dlog_print(DLOG_DEBUG, "SENDGPS", "Last location: La:%f Lo:%f", latitude, longitude);
+        sendGPS(phone,latitude,longitude);
+    }
+}
+
 
 void location_init(char * phone)
 {
@@ -110,9 +142,9 @@ void location_init(char * phone)
     }
 
     dlog_print(DLOG_ERROR, "SENDGPS", "location_manager_start success");
-    _get_last_location(phone);
-//    timer_cnt=0;
-//    timer1=ecore_timer_add(10, _get_last_location_cb, ad);
+//    _get_last_location(phone);
+//    dlog_print(DLOG_INFO, "SENDGPS", "phone in init : %s", phone);
+    timer=ecore_timer_add(10, _get_last_location_cb, phone);
 }
 
 //void _location_deinitialize(void)
@@ -172,12 +204,13 @@ sendGPS(char *phone, double lat, double lon)
 	get_current_time();
 
 //	Request URI and data for HTTP POST:
-	char uri[1024] = "http://watchaac.com/test.php";
+	char uri[1024] = "http://watchaac.com/send_gps.php";
 
 	const char* post_header="application/json";
 	dlog_print(DLOG_INFO, "SENDGPS", "post header : %s", post_header);
-
 	sprintf(forBody,"%s,%s,%lf,%lf", phone,currentTime,lat,lon);
+//	sprintf(forBody,"01072027518,%s,%lf,%lf",currentTime,lat,lon);
+
 	const char* post_msg=forBody;
 	dlog_print(DLOG_INFO, "SENDGPS", "%s",forBody);
 	dlog_print(DLOG_INFO, "SENDGPS", "%s",post_msg);
