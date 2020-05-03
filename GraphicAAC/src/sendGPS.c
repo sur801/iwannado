@@ -144,7 +144,7 @@ void location_init(char * phone)
     dlog_print(DLOG_ERROR, "SENDGPS", "location_manager_start success");
 //    _get_last_location(phone);
 //    dlog_print(DLOG_INFO, "SENDGPS", "phone in init : %s", phone);
-    timer=ecore_timer_add(10, _get_last_location_cb, phone);
+    timer=ecore_timer_add(1800, _get_last_location_cb, phone);
 }
 
 //void _location_deinitialize(void)
