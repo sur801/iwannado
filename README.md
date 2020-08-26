@@ -55,7 +55,7 @@
 
 * 예시
 
-  src/FirstView.c void enter_tts 승완 \n
+  src/FirstView.c void enter_tts 승완  
   src/FirstView.c void state_changed_cb 승완
 
 
