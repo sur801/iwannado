@@ -1,5 +1,0 @@
-set sysroot /Users/seoyulim/tizen-studio/tools/smart-build-interface/../../platforms/tizen-4.0/wearable/rootstraps/wearable-4.0-emulator.core
-set debug-file-directory /Users/seoyulim/tizen-studio/tools/smart-build-interface/../../platforms/tizen-4.0/wearable/rootstraps/wearable-4.0-emulator.core/usr/lib/debug
-set solib-search-path /Users/seoyulim/workspace/TextAAC/Debug
-dir /Users/seoyulim/tizen-studio/tools/smart-build-interface/../../platforms/tizen-4.0/wearable/rootstraps/wearable-4.0-emulator.core/usr/src/debug
-sharedlibrary
