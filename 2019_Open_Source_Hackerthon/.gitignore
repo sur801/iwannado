@@ -1,8 +1,8 @@
-.DS_Store
-.cproject
-.exportMap
-.project
-.sgin/
-.tproject
-*.prop
+/TextAAC/.DS_Store
+/TextAAC/.cproject
+/TextAAC/.exportMap
+/TextAAC/.project
+/TextAAC/.sgin/
+/TextAAC/.tproject
+/TextAAC/*.prop
 
